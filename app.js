@@ -45,7 +45,6 @@ const i18n = {
     complete_title: "서류 제출이 완료되었습니다!",
     complete_desc: "작성하신 서류가 PDF로 변환되어 담당자에게 안전하게 전송되었습니다.",
     btn_go_home: "처음 화면으로",
-    footer_copy: "교육연수동 관리부서 © 2026. All rights reserved.",
     applicant_name_label: "신청인(서명자):",
     security_reset_text: "공용 PC 개인정보 보호를 위해 <strong><span id=\"auto-reset-seconds\">60</span>초</strong> 후 세션 및 입력 데이터가 자동 파기됩니다."
   },
@@ -86,7 +85,6 @@ const i18n = {
     complete_title: "Submission Completed!",
     complete_desc: "Your official document has been converted to PDF and sent to the administrator.",
     btn_go_home: "Return to Home",
-    footer_copy: "Training Center Residence Management Office © 2026. All rights reserved.",
     applicant_name_label: "Applicant / Signer:",
     security_reset_text: "For public PC privacy, session and form data will be purged in <strong><span id=\"auto-reset-seconds\">60</span>s</strong>."
   }
