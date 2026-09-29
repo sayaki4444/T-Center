@@ -1,0 +1,1060 @@
+:root {
+  /* Primary & Accent: Modern Indigo / Navy Theme */
+  --primary-color: #1e3a8a;
+  --primary-hover: #172554;
+  --primary-light: #eff6ff;
+  --primary-border: #bfdbfe;
+  --accent-color: #2563eb;
+  --accent-hover: #1d4ed8;
+  
+  /* Status Colors */
+  --success-color: #059669;
+  --success-hover: #047857;
+  --success-light: #ecfdf5;
+  --warning-color: #d97706;
+  --danger-color: #dc2626;
+  
+  /* Neutral Grays */
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  --bg-page: #f8fafc;
+  --bg-surface: #ffffff;
+  --border-color: #e2e8f0;
+  --border-focus: #3b82f6;
+  
+  /* Dribbble Style Soft Shadows */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 6px 16px -2px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.09), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+  --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+  
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  
+  /* Typography */
+  --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+}
+
+/* CSS Reset & Global Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  line-height: 1.6;
+  min-height: 100vh;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-container {
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ===================================================
+   Header / Navigation (Dribbble Clean Mobile Bar)
+   =================================================== */
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 24px;
+  gap: 16px;
+  transition: all 0.2s ease;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brand-badge {
+  background: var(--primary-color);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.nav-brand h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.btn-test-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.84rem;
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 7px 12px;
+  background: var(--primary-light);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--primary-border);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-test-link:hover {
+  background: #dbeafe;
+  color: var(--accent-hover);
+}
+
+.lang-switch-wrap {
+  display: inline-flex;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+
+.lang-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.lang-btn.active {
+  background: var(--bg-surface);
+  color: var(--primary-color);
+  box-shadow: var(--shadow-xs);
+}
+
+/* ===================================================
+   Step Progress (Dribbble Todo Segment Indicator)
+   =================================================== */
+.step-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+  gap: 12px;
+  padding: 0 8px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  transition: all 0.25s ease;
+}
+
+.step-item.active {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.step-num {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.step-item.active .step-num {
+  background: var(--primary-color);
+  color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.15);
+}
+
+.step-label {
+  font-size: 0.9rem;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+}
+
+.step-line {
+  flex: 0 1 50px;
+  height: 2px;
+  background: var(--border-color);
+  border-radius: 2px;
+}
+
+/* ===================================================
+   View Panels & Common Headings
+   =================================================== */
+.view-panel {
+  display: none;
+  animation: panelFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.view-panel.active {
+  display: block;
+}
+
+@keyframes panelFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-heading {
+  text-align: center;
+  margin-bottom: 28px;
+  padding: 0 8px;
+}
+
+.section-heading h2 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
+
+.section-heading p {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ===================================================
+   VIEW 1: Doc Selection Cards (Dribbble Todo Card Grid)
+   =================================================== */
+.doc-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.doc-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  position: relative;
+}
+
+.doc-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-color);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-icon {
+  font-size: 2rem;
+  margin-bottom: 14px;
+  background: var(--primary-light);
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.card-content {
+  flex: 1;
+  width: 100%;
+}
+
+.card-content h3 {
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 6px;
+  letter-spacing: -0.2px;
+}
+
+.card-content p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+
+.btn-select {
+  align-self: stretch;
+  background: var(--primary-light);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-border);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.doc-card:hover .btn-select {
+  background: var(--primary-color);
+  color: #ffffff;
+  border-color: var(--primary-color);
+}
+
+/* Custom Template Notice */
+.custom-template-notice {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.notice-icon {
+  font-size: 1.7rem;
+  flex-shrink: 0;
+}
+
+.notice-text strong {
+  display: block;
+  color: #166534;
+  margin-bottom: 3px;
+  font-size: 0.92rem;
+}
+
+.notice-text p {
+  color: #15803d;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+/* ===================================================
+   VIEW 2: Form & Signature (Mobile Optimized Form)
+   =================================================== */
+.form-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-color);
+  gap: 12px;
+}
+
+.btn-back {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-back:hover {
+  background: #f1f5f9;
+  color: var(--text-main);
+}
+
+.form-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.form-title-group h2 {
+  font-size: 1.3rem;
+  color: var(--primary-color);
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lang-tag {
+  background: var(--primary-light);
+  color: var(--accent-color);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.document-form {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  box-shadow: var(--shadow-card);
+}
+
+.form-fields-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px 20px;
+  margin-bottom: 30px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.form-group.col-full {
+  grid-column: span 2;
+}
+
+.form-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #334155;
+  display: flex;
+  align-items: center;
+}
+
+.required-badge {
+  color: var(--danger-color);
+  margin-left: 3px;
+  font-weight: 700;
+}
+
+.form-control {
+  width: 100%;
+  min-width: 0;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: #ffffff;
+  color: var(--text-main);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Date input mobile rendering fix */
+input[type="date"].form-control {
+  min-height: 44px;
+  -webkit-appearance: none;
+  background-color: #ffffff;
+}
+
+textarea.form-control {
+  min-height: 85px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* Signature Pad Section */
+.signature-section {
+  border-top: 1px solid var(--border-color);
+  padding-top: 24px;
+  margin-bottom: 30px;
+}
+
+.section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.section-sub {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.signature-canvas-wrapper {
+  position: relative;
+  border: 2px dashed #cbd5e1;
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  overflow: hidden;
+  max-width: 600px;
+  width: 100%;
+}
+
+#signature-pad {
+  display: block;
+  width: 100%;
+  height: 180px;
+  cursor: crosshair;
+  background: #ffffff;
+  touch-action: none; /* Prevents mobile scroll while signing */
+}
+
+.btn-clear-sig {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #f1f5f9;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-clear-sig:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.sig-warning {
+  font-size: 0.8rem;
+  color: var(--warning-color);
+  margin-top: 8px;
+  display: none;
+  font-weight: 600;
+}
+
+.sig-warning.show {
+  display: block;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Common Buttons */
+.btn-primary {
+  background: var(--primary-color);
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+.btn-outline {
+  background: #ffffff;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-outline:hover {
+  background: var(--primary-light);
+}
+
+/* ===================================================
+   VIEW 3: Review & Paper Sheet (A4 Responsive Container)
+   =================================================== */
+.mobile-scroll-hint {
+  display: none;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.mobile-scroll-hint span {
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #bfdbfe;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.review-sheet-scroll-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 2px 20px;
+  margin-bottom: 24px;
+}
+
+/* Custom Scrollbar for review container */
+.review-sheet-scroll-container::-webkit-scrollbar {
+  height: 6px;
+}
+.review-sheet-scroll-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+.review-sheet-scroll-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.review-paper-sheet {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  padding: 55px 65px;
+  width: 100%;
+  max-width: 820px;
+  min-height: 1100px;
+  margin: 0 auto;
+  font-family: 'Nanum Myeongjo', 'Batang', serif;
+  color: #000000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.paper-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.paper-table-wrapper {
+  margin-bottom: 20px;
+  width: 100%;
+  overflow: visible;
+}
+
+.paper-pledge-box {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-bottom: 24px;
+  font-size: 0.88rem;
+  color: #000000;
+}
+
+.paper-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+}
+
+.applicant-sign-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sign-image-box {
+  border: 1px solid #cbd5e1;
+  width: 160px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+}
+
+.sign-image-box img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.review-action-btns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-submit-final {
+  background: #059669;
+}
+
+.btn-submit-final:hover {
+  background: #047857;
+}
+
+/* ===================================================
+   VIEW 4: Complete Screen (Dribbble Success Card)
+   =================================================== */
+.complete-card {
+  max-width: 580px;
+  margin: 16px auto 32px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 40px 32px;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+}
+
+.complete-icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+  display: inline-block;
+  animation: bounceSuccess 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bounceSuccess {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.complete-card h2 {
+  font-size: 1.45rem;
+  color: var(--text-main);
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+}
+
+.complete-card p {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  margin-bottom: 24px;
+}
+
+.complete-details {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  text-align: left;
+  font-size: 0.88rem;
+  margin-bottom: 28px;
+  line-height: 1.7;
+}
+
+.complete-details p {
+  margin-bottom: 4px;
+  color: var(--text-main);
+  font-size: 0.88rem;
+}
+
+.complete-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Footer */
+.app-footer {
+  margin-top: auto;
+  text-align: center;
+  padding-top: 36px;
+  color: var(--text-light);
+  font-size: 0.8rem;
+}
+
+/* ===================================================
+   MOBILE & TABLET RESPONSIVE SYSTEM (Dribbble Refined)
+   =================================================== */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 16px 14px 48px;
+  }
+
+  /* Top Nav Mobile Refinement */
+  .top-nav {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px 16px;
+    gap: 12px;
+    border-radius: var(--radius-md);
+  }
+
+  .nav-brand {
+    justify-content: flex-start;
+  }
+
+  .nav-brand h1 {
+    font-size: 1.1rem;
+  }
+
+  .top-nav-actions {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  /* Step Progress Mobile Refinement */
+  .step-progress {
+    gap: 8px;
+    margin-bottom: 22px;
+    padding: 0 4px;
+  }
+
+  .step-line {
+    flex: 1 1 20px;
+    min-width: 14px;
+    max-width: 36px;
+  }
+
+  .step-item {
+    gap: 6px;
+  }
+
+  .step-num {
+    width: 26px;
+    height: 26px;
+    font-size: 0.78rem;
+  }
+
+  .step-label {
+    font-size: 0.78rem;
+    letter-spacing: -0.3px;
+  }
+
+  /* Doc Cards in Mobile */
+  .doc-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .doc-card {
+    padding: 18px 16px;
+    border-radius: var(--radius-md);
+  }
+
+  .card-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 1.7rem;
+    margin-bottom: 12px;
+  }
+
+  .card-content h3 {
+    font-size: 1.05rem;
+  }
+
+  .card-content p {
+    font-size: 0.83rem;
+    margin-bottom: 14px;
+  }
+
+  /* Form Section in Mobile */
+  .form-header-bar {
+    margin-bottom: 16px;
+  }
+
+  .form-title-group h2 {
+    font-size: 1.15rem;
+  }
+
+  .document-form {
+    padding: 20px 16px;
+    border-radius: var(--radius-lg);
+  }
+
+  .form-fields-container {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .form-group.col-full {
+    grid-column: span 1;
+  }
+
+  .form-control {
+    padding: 11px 13px;
+    font-size: 0.92rem;
+  }
+
+  /* Signature in Mobile */
+  .signature-canvas-wrapper {
+    max-width: 100%;
+  }
+
+  #signature-pad {
+    height: 160px;
+  }
+
+  /* Form Action Buttons in Mobile */
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .form-actions button,
+  .form-actions .btn-primary,
+  .form-actions .btn-secondary {
+    width: 100%;
+    padding: 13px;
+    font-size: 0.95rem;
+  }
+
+  /* Review Screen in Mobile: Maintain A4 Integrity with Smooth Scroll */
+  .mobile-scroll-hint {
+    display: flex;
+  }
+
+  .review-paper-sheet {
+    /* Prevent table columns from squishing and breaking words vertically */
+    min-width: 660px;
+    min-height: auto;
+    padding: 34px 28px;
+    border-radius: var(--radius-sm);
+  }
+
+  .review-action-btns {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .review-action-btns button {
+    width: 100%;
+    padding: 13px;
+    font-size: 0.95rem;
+  }
+
+  /* Complete Screen in Mobile */
+  .complete-card {
+    padding: 28px 18px;
+    border-radius: var(--radius-lg);
+  }
+
+  .complete-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .complete-actions button {
+    width: 100%;
+    padding: 13px;
+  }
+}
+
+/* Extra Small Mobile Devices (width <= 400px) */
+@media (max-width: 400px) {
+  .step-label {
+    display: none; /* Only show step numbers on very small screens to prevent any overlap */
+  }
+
+  .step-item.active .step-label {
+    display: inline-block; /* Show only current step label */
+  }
+
+  .nav-brand h1 {
+    font-size: 1rem;
+  }
+
+  .brand-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
+}

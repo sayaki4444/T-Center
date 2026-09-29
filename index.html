@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>교육연수동 간편 서류 제출 | Training Center Document Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- jsPDF & html2canvas for PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="top-nav">
+      <div class="nav-brand">
+        <span class="brand-badge" id="badge-title">교육연수동</span>
+        <h1 id="brand-main">간편 서류 제출 시스템</h1>
+      </div>
+      <div class="top-nav-actions">
+        <a href="test.html" class="btn-test-link" id="btn-test-link" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:6px 12px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; color:#1d4ed8; font-size:0.85rem; font-weight:600;">
+          <span class="test-icon">📋</span>
+          <span class="test-text">서식 미리보기/테스트</span>
+        </a>
+        <div class="lang-switch-wrap">
+          <button type="button" class="lang-btn active" data-lang="ko" id="btn-lang-ko">한국어</button>
+          <button type="button" class="lang-btn" data-lang="en" id="btn-lang-en">English</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Step Indicator -->
+      <nav class="step-progress">
+        <div class="step-item active" data-step="1">
+          <span class="step-num">1</span>
+          <span class="step-label" data-i18n="step1_title">서류 선택</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item" data-step="2">
+          <span class="step-num">2</span>
+          <span class="step-label" data-i18n="step2_title">내용 작성 & 서명</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item" data-step="3">
+          <span class="step-num">3</span>
+          <span class="step-label" data-i18n="step3_title">입력 검토 & 제출</span>
+        </div>
+      </nav>
+
+      <!-- VIEW 1: Document Selection -->
+      <section id="view-select-doc" class="view-panel active">
+        <div class="section-heading">
+          <h2 data-i18n="select_heading">제출하실 서류를 선택해주세요</h2>
+          <p data-i18n="select_desc">안내사항을 확인하신 후 작성할 신청서를 선택해 주시기 바랍니다.</p>
+        </div>
+
+        <div class="doc-cards-grid">
+          <!-- 입주신청서 -->
+          <div class="doc-card" data-doc-type="moveInApp">
+            <div class="card-icon">🏢</div>
+            <div class="card-content">
+              <h3 data-i18n="doc_moveInApp_title">입주신청서</h3>
+              <p data-i18n="doc_moveInApp_desc">교육연수동 숙소 신규 입주 배정을 신청하는 서류입니다.</p>
+            </div>
+            <button type="button" class="btn-select" data-i18n="btn_start_write">작성하기 →</button>
+          </div>
+
+          <!-- 입주계 -->
+          <div class="doc-card" data-doc-type="moveInPledge">
+            <div class="card-icon">📋</div>
+            <div class="card-content">
+              <h3 data-i18n="doc_moveInPledge_title">입주계 (서약서)</h3>
+              <p data-i18n="doc_moveInPledge_desc">입주 수칙 준수 및 시설 이용 서약을 제출하는 서류입니다.</p>
+            </div>
+            <button type="button" class="btn-select" data-i18n="btn_start_write">작성하기 →</button>
+          </div>
+
+          <!-- 연장신청서 -->
+          <div class="doc-card" data-doc-type="extensionApp">
+            <div class="card-icon">⏱️</div>
+            <div class="card-content">
+              <h3 data-i18n="doc_extensionApp_title">연장신청서</h3>
+              <p data-i18n="doc_extensionApp_desc">연수 일정 변경 등으로 기존 체류 기간을 연장하는 서류입니다.</p>
+            </div>
+            <button type="button" class="btn-select" data-i18n="btn_start_write">작성하기 →</button>
+          </div>
+
+          <!-- 퇴거계 -->
+          <div class="doc-card" data-doc-type="moveOutNotice">
+            <div class="card-icon">🚪</div>
+            <div class="card-content">
+              <h3 data-i18n="doc_moveOutNotice_title">퇴거계</h3>
+              <p data-i18n="doc_moveOutNotice_desc">연수 종료 또는 중도 퇴거 시 호실 반납을 신고하는 서류입니다.</p>
+            </div>
+            <button type="button" class="btn-select" data-i18n="btn_start_write">작성하기 →</button>
+          </div>
+        </div>
+
+        <!-- Custom Upload Notice -->
+        <div class="custom-template-notice">
+          <div class="notice-icon">💡</div>
+          <div class="notice-text">
+            <strong data-i18n="notice_template_title">기관별 표준 양식 보유 중이신가요?</strong>
+            <p data-i18n="notice_template_desc">프로젝트 폴더에 한글/영문 서식 파일을 업로드해주시면, 해당 양식의 정확한 위치에 입력 데이터가 자동 매핑되도록 연결됩니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: Fill Form & Signature -->
+      <section id="view-form" class="view-panel">
+        <div class="form-header-bar">
+          <button type="button" class="btn-back" id="btn-back-to-select" data-i18n="btn_back_list">← 서류 선택으로</button>
+          <div class="form-title-group">
+            <h2 id="current-form-title">입주신청서</h2>
+            <span class="lang-tag" id="current-form-lang-tag">한국어 양식</span>
+          </div>
+        </div>
+
+        <form id="doc-submission-form" class="document-form" novalidate>
+          <div id="dynamic-form-fields" class="form-fields-container">
+            <!-- Dynamically populated fields -->
+          </div>
+
+          <!-- Signature Pad Section -->
+          <div class="form-section signature-section">
+            <h3 class="section-title">
+              <span data-i18n="signature_title">서명 (Signature)</span>
+              <span class="required-badge">*</span>
+            </h3>
+            <p class="section-sub" data-i18n="signature_guide">아래 서명란에 정자 또는 서명을 마우스/터치로 작성해 주세요.</p>
+            <div class="signature-canvas-wrapper">
+              <canvas id="signature-pad" width="600" height="180"></canvas>
+              <button type="button" class="btn-clear-sig" id="btn-clear-sig" data-i18n="btn_clear_sig">지우기</button>
+            </div>
+            <p class="sig-warning" id="sig-warning" data-i18n="sig_warning">※ 서명을 완료해야 제출 단계로 이동할 수 있습니다.</p>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" id="btn-cancel-form" data-i18n="btn_cancel">취소</button>
+            <button type="submit" class="btn-primary" id="btn-proceed-review" data-i18n="btn_proceed_review">입력 내용 확인하기
+              →</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- VIEW 3: Review & Submit -->
+      <section id="view-review" class="view-panel">
+        <div class="section-heading">
+          <h2 data-i18n="review_heading">작성 내용 확인</h2>
+          <p data-i18n="review_desc">입력하신 내용이 맞는지 최종 확인해 주세요. 이상이 없으면 제출 버튼을 눌러주세요.</p>
+        </div>
+
+        <div class="mobile-scroll-hint">
+          <span>👈 좌우로 스크롤하여 공식 서식지 전체를 확인하세요 👉</span>
+        </div>
+
+        <!-- Printable / PDF Target Container Wrapper -->
+        <div class="review-sheet-scroll-container">
+          <div class="review-paper-sheet" id="printable-document">
+          <div class="paper-header">
+            <!-- Dynamic Document Header (Appendix, Guideline, Title) -->
+          </div>
+
+          <div class="paper-table-wrapper" id="review-table-container">
+            <!-- Dynamic Key-Value Table -->
+          </div>
+
+          <div class="paper-pledge-box" id="review-pledge-text">
+            <!-- Dynamic Clauses, Footnotes, Attachments -->
+          </div>
+
+          <div class="paper-footer">
+            <!-- Dynamic Date, Signer, Signature, Recipient -->
+          </div>
+        </div>
+      </div>
+
+          <!-- Hidden config inputs for background dispatch -->
+          <div class="email-dispatch-config" style="display: none;">
+            <input type="email" id="admin-email-input" value="yoonbs@kiost.ac.kr" readonly>
+            <input type="url" id="gas-url-input" value="https://script.google.com/macros/s/AKfycbzUALMG5SCQ3AB1KBBpTvJdlBKc1EClsuP4lVgSBGMWocUO7XK42TcQqDTZIEcWdU5IxQ/exec" readonly>
+          </div>
+
+          <div class="review-action-btns">
+            <button type="button" class="btn-secondary" id="btn-back-to-edit" data-i18n="btn_edit_again">← 수정하기</button>
+            <button type="button" class="btn-primary btn-submit-final" id="btn-final-submit" data-i18n="btn_final_submit">🚀 메일 발송</button>
+          </div>
+      </section>
+
+      <!-- VIEW 4: Complete Screen -->
+      <section id="view-complete" class="view-panel">
+        <div class="complete-card">
+          <div class="complete-icon">✅</div>
+          <h2 data-i18n="complete_title">서류 제출이 완료되었습니다!</h2>
+          <p data-i18n="complete_desc">작성하신 서류가 PDF로 변환되어 담당자에게 안전하게 전송되었습니다.</p>
+          <div class="complete-details" id="complete-summary"></div>
+          <div class="complete-actions">
+            <button type="button" class="btn-outline" id="btn-download-submitted-pdf" data-i18n="btn_download_submitted_pdf">📄 작성한 PDF 다운로드</button>
+            <button type="button" class="btn-primary" id="btn-go-home" data-i18n="btn_go_home">처음 화면으로</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p data-i18n="footer_copy">교육연수동 운영지원실 &copy; 2026. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

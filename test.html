@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>교육연수동 서류 간편 제출 테스트 | Training Center Document Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&family=Nanum+Myeongjo:wght@700;800&family=Noto+Serif+KR:wght@600;700;900&display=swap" rel="stylesheet">
+  <!-- jsPDF & html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-dark: #172554;
+      --accent: #2563eb;
+      --bg: #f8fafc;
+      --text: #1e293b;
+      --border: #cbd5e1;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    /* Top Control Bar */
+    .top-bar {
+      background: #ffffff;
+      border-bottom: 2px solid var(--primary);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .bar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .bar-brand h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    /* Language Switcher */
+    .lang-tabs {
+      display: flex;
+      background: #e2e8f0;
+      padding: 3px;
+      border-radius: 6px;
+    }
+    .lang-btn {
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 4px;
+      color: #475569;
+    }
+    .lang-btn.active {
+      background: #ffffff;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* Form Type Selector Tabs */
+    .doc-nav-tabs {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      padding: 0 24px;
+      gap: 8px;
+      overflow-x: auto;
+    }
+    .doc-tab {
+      padding: 12px 18px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #64748b;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .doc-tab:hover {
+      color: var(--primary);
+    }
+    .doc-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* Main Split Layout */
+    .split-layout {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 24px;
+      max-width: 1720px;
+      margin: 0 auto;
+      padding: 20px 24px;
+      min-height: calc(100vh - 120px);
+    }
+
+    /* Left Panel: Inputs */
+    .left-panel {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      height: fit-content;
+      position: sticky;
+      top: 80px;
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+    }
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 12px;
+    }
+    .panel-head h2 {
+      font-size: 1.1rem;
+      color: var(--primary-dark);
+    }
+    .btn-quick-fill {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-quick-fill:hover { background: #dbeafe; }
+
+    .fixed-info-badge {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      color: #334155;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .fixed-info-badge strong {
+      color: var(--primary-dark);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .fg-full { grid-column: span 2; }
+    .fg-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .fg-item label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #334155;
+    }
+    .fg-item input, .fg-item select, .fg-item textarea {
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-family: inherit;
+    }
+    .fg-item input:focus, .fg-item select:focus, .fg-item textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+    }
+
+    /* Signature Box */
+    .sig-container {
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #fafafa;
+      position: relative;
+    }
+    #test-sig-canvas {
+      width: 100%;
+      height: 120px;
+      cursor: crosshair;
+      display: block;
+    }
+    .sig-clear-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .email-config-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+    .email-config-box label {
+      font-weight: 700;
+      color: #166534;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .email-config-box input {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #86efac;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    /* Bottom Button Bar */
+    .panel-foot {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+    }
+    .btn-action-primary {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.92rem;
+      transition: background 0.2s;
+    }
+    .btn-action-primary:hover { background: var(--primary-dark); }
+    .btn-action-success {
+      background: #059669;
+      color: #ffffff;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+    .btn-action-success:hover { background: #047857; }
+
+    /* Right Panel: Authentic A4 Paper Styles - STRICT OFFICIAL FORMAT */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .doc-preview-meta {
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      color: #0369a1;
+      width: 100%;
+      max-width: 820px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .paper-sheet {
+      width: 820px;
+      min-height: 1160px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      padding: 50px 65px;
+      box-sizing: border-box;
+      font-family: 'Nanum Myeongjo', 'Batang', serif;
+      color: #000000;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+    .paper-sheet.lang-en {
+      font-family: 'Times New Roman', 'Pretendard', serif;
+    }
+
+    /* Document Sub-Headers */
+    .hwp-appendix {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 2px;
+    }
+    .hwp-subguideline {
+      font-size: 0.8rem;
+      color: #333;
+      margin-bottom: 6px;
+    }
+    .hwp-revision-note {
+      font-size: 0.75rem;
+      color: #555;
+      margin-bottom: 16px;
+    }
+
+    /* Document Main Title */
+    .hwp-main-title {
+      font-size: 1.85rem;
+      font-weight: 900;
+      text-align: center;
+      letter-spacing: 6px;
+      margin: 12px 0 24px;
+      border-bottom: 2px solid #000;
+      padding-bottom: 12px;
+    }
+    .lang-en .hwp-main-title {
+      letter-spacing: 1px;
+      font-size: 1.6rem;
+    }
+
+    /* HWP / DOCX Authentic Table Layout */
+    .kiost-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 2px solid #000;
+      margin-bottom: 18px;
+      font-size: 0.88rem;
+    }
+    .kiost-table th, .kiost-table td {
+      border: 1px solid #333;
+      padding: 8px 12px;
+      vertical-align: middle;
+    }
+    .kiost-table th {
+      background-color: #f3f4f6;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 1px;
+      width: 22%;
+    }
+    .kiost-table td {
+      background-color: #ffffff;
+      color: #000;
+      text-align: center;
+    }
+    .kiost-table td.text-left {
+      text-align: left;
+    }
+    .td-value {
+      font-family: 'Pretendard', sans-serif;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    /* Exact HWP Subtext positioning */
+    .doc-footnotes {
+      font-size: 0.82rem;
+      line-height: 1.8;
+      color: #000000;
+      margin-bottom: 22px;
+      text-align: left;
+    }
+    .doc-lead-center {
+      text-align: center;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin: 22px 0;
+      line-height: 1.8;
+      letter-spacing: 0.5px;
+    }
+    .doc-attachments {
+      font-size: 0.82rem;
+      line-height: 1.8;
+      color: #000000;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .pledge-list {
+      list-style-type: none;
+      padding-left: 0;
+      margin-bottom: 20px;
+      font-size: 0.83rem;
+      line-height: 1.75;
+      text-align: justify;
+    }
+    .pledge-list li { margin-bottom: 4px; }
+
+    /* Sign & Date Section */
+    .doc-date-center {
+      text-align: right;
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 24px 0 16px;
+      letter-spacing: 2px;
+      padding-right: 20px;
+    }
+    .doc-sign-line {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      padding-right: 20px;
+    }
+    .sign-slot {
+      width: 140px;
+      height: 55px;
+      border: 1px dashed #999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: #fafafa;
+    }
+    .sign-slot img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .sign-placeholder {
+      font-size: 0.75rem;
+      color: #999;
+    }
+
+    /* Document Recipient */
+    .doc-recipient {
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: 4px;
+      margin-top: 16px;
+      text-align: left;
+    }
+    .lang-en .doc-recipient {
+      letter-spacing: 0.5px;
+      font-size: 1.15rem;
+    }
+
+    @media (max-width: 1200px) {
+      .split-layout { grid-template-columns: 1fr; }
+      .left-panel { position: static; max-height: none; }
+      .paper-sheet { width: 100%; padding: 30px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Control Bar -->
+  <header class="top-bar">
+    <div class="bar-brand">
+      <span class="badge">KIOST 공식 서식 규격</span>
+      <h1 id="top-title">공용숙소 공식 서식 실시간 매핑 시뮬레이터</h1>
+    </div>
+    <div class="top-actions">
+      <!-- Language Selector -->
+      <div class="lang-tabs">
+        <button type="button" class="lang-btn active" id="btn-ko" onclick="setLanguage('ko')">한국어 (HWP)</button>
+        <button type="button" class="lang-btn" id="btn-en" onclick="setLanguage('en')">English (DOCX)</button>
+      </div>
+      <a href="index.html" style="font-size:0.85rem; text-decoration:none; color:var(--primary); font-weight:600; padding:6px 12px; background:#eff6ff; border-radius:4px; border:1px solid #bfdbfe;">← 사용자 포털로 이동</a>
+    </div>
+  </header>
+
+  <!-- Form Selection Tabs -->
+  <nav class="doc-nav-tabs">
+    <button type="button" class="doc-tab active" data-form="moveInApp" onclick="switchForm('moveInApp')">
+      ① 입주신청서 (별표 제1호)
+    </button>
+    <button type="button" class="doc-tab" data-form="moveInPledge" onclick="switchForm('moveInPledge')">
+      ② 입주계 (별표 제3호)
+    </button>
+    <button type="button" class="doc-tab" data-form="extensionApp" onclick="switchForm('extensionApp')">
+      ③ 입주기간 연장신청서 (별표 제2호)
+    </button>
+    <button type="button" class="doc-tab" data-form="moveOutNotice" onclick="switchForm('moveOutNotice')">
+      ④ 퇴거계 (별표 제5호)
+    </button>
+  </nav>
+
+  <!-- Split Screen Area -->
+  <main class="split-layout">
+    <!-- Left: Data Input Form & Signature -->
+    <section class="left-panel">
+      <div class="panel-head">
+        <h2 id="left-form-heading">입력 항목 (Live Form)</h2>
+        <button type="button" class="btn-quick-fill" onclick="quickFillSampleData()">⚡ 샘플 데이터 자동입력</button>
+      </div>
+
+      <!-- Dynamic Form Inputs -->
+      <div id="input-fields-container" class="form-grid"></div>
+
+      <!-- Signature Area -->
+      <div class="fg-item fg-full" style="margin-top: 10px;">
+        <label>신청인/입주자 서명 (Signature) *</label>
+        <div class="sig-container">
+          <canvas id="test-sig-canvas"></canvas>
+          <button type="button" class="sig-clear-btn" onclick="clearTestSignature()">지우기 (Clear)</button>
+        </div>
+      </div>
+
+      <!-- Administrator Email & Google Apps Script (Hidden for background processing) -->
+      <div class="email-config-box" style="display: none;">
+        <input type="email" id="admin-email" value="yoonbs@kiost.ac.kr" readonly />
+        <input type="url" id="gas-url" value="https://script.google.com/macros/s/AKfycbzUALMG5SCQ3AB1KBBpTvJdlBKc1EClsuP4lVgSBGMWocUO7XK42TcQqDTZIEcWdU5IxQ/exec" readonly />
+      </div>
+
+      <!-- Actions -->
+      <div class="panel-foot">
+        <button type="button" class="btn-action-primary" onclick="exportPaperToPdf()">
+          📄 공식 서식 규격 PDF 다운로드
+        </button>
+        <button type="button" class="btn-action-success" onclick="testSendEmail()">
+          📧 메일 발송
+        </button>
+      </div>
+    </section>
+
+    <!-- Right: Authentic Document Sheet (A4 Mirror) -->
+    <section class="right-panel">
+      <div class="doc-preview-meta">
+        <span id="preview-meta-info">📌 서식 원본 정밀 매핑 중</span>
+        <span>A4 규격 (210mm x 297mm) 실시간 반영</span>
+      </div>
+
+      <!-- The Real A4 Sheet Container -->
+      <div class="paper-sheet" id="official-paper-preview">
+        <!-- Document Header -->
+        <div class="paper-top">
+          <div class="hwp-appendix" id="lbl-appendix"></div>
+          <div class="hwp-subguideline" id="lbl-guideline"></div>
+          <div class="hwp-revision-note" id="lbl-revision"></div>
+          
+          <h1 class="hwp-main-title" id="lbl-main-title"></h1>
+
+          <!-- English DOCX Top Recipient & Lead -->
+          <div id="doc-en-top-recipient" style="display:none;"></div>
+
+          <!-- Authentic Table Content -->
+          <div id="official-table-wrapper"></div>
+
+          <!-- Bottom Text (Footnotes, Lead text, Attachments) -->
+          <div id="official-clauses-wrapper"></div>
+        </div>
+
+        <!-- Document Bottom / Signature & Recipient -->
+        <div class="paper-bottom">
+          <div class="doc-date-center" id="lbl-doc-date"></div>
+
+          <div class="doc-sign-line">
+            <span id="lbl-signer-title">신청인 ：</span>
+            <span class="td-value" id="disp-sign-name" style="min-width: 60px;">홍길동</span>
+            <div class="sign-slot">
+              <span class="sign-placeholder" id="sign-placeholder-txt">(서명 / 인)</span>
+              <img id="disp-sign-img" style="display:none;" alt="Signature" />
+            </div>
+          </div>
+
+          <div class="doc-recipient" id="lbl-recipient"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let currentLanguage = 'ko';
+
+    // 숫자 입력 시 자동으로 '호' 또는 'Room '을 붙여주는 헬퍼
+    function formatRoomNumber(val, lang = 'ko') {
+      if (!val) return '';
+      const clean = String(val).trim();
+      const numOnly = clean.replace(/[^0-9]/g, '');
+      if (!numOnly) return clean; // 숫자가 없으면 그대로 반환
+      
+      if (lang === 'ko') {
+        return `${numOnly}호`;
+      } else {
+        return `Room ${numOnly}`;
+      }
+    }
+
+    // 날짜 간 개월/일수 정밀 자동계산
+    function calculateDuration(startDateStr, endDateStr, lang = 'ko') {
+      if (!startDateStr || !endDateStr) return '';
+      const start = new Date(startDateStr);
+      const end = new Date(endDateStr);
+      if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) return '';
+
+      let years = end.getFullYear() - start.getFullYear();
+      let months = end.getMonth() - start.getMonth();
+      let days = end.getDate() - start.getDate() + 1;
+
+      if (days < 0) {
+        months -= 1;
+        const prevMonthLastDay = new Date(end.getFullYear(), end.getMonth(), 0).getDate();
+        days += prevMonthLastDay;
+      }
+      if (months < 0) {
+        years -= 1;
+        months += 12;
+      }
+
+      const totalMonths = (years * 12) + months;
+      if (lang === 'ko') {
+        return `${totalMonths}개월 ${days}일`;
+      } else {
+        return `${totalMonths} months ${days} days`;
+      }
+    }
+
+    function formatDateDisplay(dateStr, lang) {
+      if (!dateStr) return lang === 'ko' ? '년    월    일' : 'MM/DD/YYYY';
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      if (lang === 'ko') {
+        return `${d.getFullYear()}년 ${String(d.getMonth()+1).padStart(2,'0')}월 ${String(d.getDate()).padStart(2,'0')}일`;
+      } else {
+        return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${d.getFullYear()}`;
+      }
+    }
+
+    // 4종 서식 원본 완벽 정의
+    const formDefinitions = {
+      // 1. 입주신청서
+      moveInApp: {
+        ko: {
+          tabTitle: "① 입주신청서 (별표 제1호)",
+          appendix: "[별표 제1호] 공용숙소 입주신청서",
+          guideline: "(05-15) 공용숙소 관리지침",
+          revision: "(개정 ‘13. 12. 30, ‘15. 03. 10, ‘16. 04. 15, ‘17. 10. 20, ‘18. 07. 01, ‘22. 7. 15 개정 2025. 2. 1.)",
+          mainTitle: "공용숙소 입주신청서",
+          fixedBadge: "✓ <strong>구분:</strong> 부산본원 (고정) | <strong>숙소형태:</strong> 교육연수동 (고정)",
+          leadText: "공용숙소관리지침에 의거 위와 같이 공용숙소 입주를 신청하오니 허가하여 주시기 바랍니다.",
+          footnotes: `* 현거주지 : 본인의 주민등록상 주소지<br>* 본거주지 : 미혼인 경우 부모, 기혼인 경우 배우자, 독신인 경우 본인의 주민등록상 주소지(공고일 이전)`,
+          attachments: `첨부 ： 주민등록등본 1부, 본인 및 부양가족 재산세 미과세 증명원 각1부<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;외국인등록증(외국인 경우) 또는 여권사본 1부`,
+          signerLabel: "신청인 ：",
+          recipient: "한국해양과학기술원장 귀하",
+          metaSource: "form/[별표 제1호] 공용숙소 입주신청서.hwp 기준"
+        },
+        en: {
+          tabTitle: "① Move-in Application (Appx. 1)",
+          appendix: "Appendix 1 (Amended on Dec. 30, 2013; Mar. 10, 2015; April 15, 2016; October 20, 2017; Amended on July 1, 2018)",
+          guideline: "Residence Regulation (05-15)",
+          revision: "Korea Institute of Ocean Science & Technology",
+          mainTitle: "Residence Application",
+          fixedBadge: "✓ <strong>Region:</strong> KIOST Premise (Fixed) | <strong>Type:</strong> Education and Training Center (Fixed)",
+          leadText: "Please accept my application for KIOST residence as below in accordance with the Residence Regulation:",
+          footnotes: `* The current address means the address as shown in the resident registration certificate of an applicant.<br>* The home address means the address as shown in the resident registration certificate of an applicant’s parents (if an applicant is single), the address as shown in the resident registration certificate of an applicant’s spouse (if an applicant is married), or the address as shown in the resident registration certificate of an applicant (if an applicant is single and has a home separate from a family), pertaining to an applicant’s status prior to the date of notification.`,
+          attachments: `Attachments: one copy of a family relation certificate, one copy of a resident registration certificate (of an applicant including the history of change of address), one copy of a resident registration certificate (of an applicant’s spouse or parents including the history of change of address) or one copy of an alien registration card (if an applicant is a foreigner)<br>A copy of a passport for foreigners.`,
+          signerLabel: "Signature of Applicant :",
+          recipient: "To President of the Korea Institute of Ocean Science & Technology (KIOST)",
+          metaSource: "form/입주신청서_Residence Application.docx 기준"
+        },
+        fields: [
+          { key: "name", label: { ko: "성명", en: "Applicant Full Name" }, type: "text", def: {ko:"홍길동", en:"Gildong Hong"}, full: false },
+          { key: "affiliation", label: { ko: "소속", en: "Name of Company/Institute" }, type: "text", def: {ko:"해양환경연구센터", en:"KIOST"}, full: false },
+          { key: "position", label: { ko: "직급", en: "Title / Position" }, type: "text", def: {ko:"선임연구원", en:"Senior Researcher"}, full: false },
+          { key: "phone", label: { ko: "연락처", en: "Phone No." }, type: "text", def: {ko:"010-1234-5678", en:"+82-10-1234-5678"}, full: false },
+          { key: "nationality", label: { ko: "외국인 국적", en: "Nationality (Foreigner)" }, type: "text", def: {ko:"대한민국", en:"Republic of Korea"}, full: false },
+          { key: "alienNo", label: { ko: "외국인등록번호 / 여권", en: "Alien Reg. No / Passport" }, type: "text", def: {ko:"-", en:"-"}, full: false },
+          { key: "currentAddr", label: { ko: "현거주지 (주민등록상)", en: "Current Address" }, type: "text", def: {ko:"부산광역시 영도구 해양로 385", en:"385 Haeyang-ro, Yeongdo-gu, Busan"}, full: true },
+          { key: "homeAddr", label: { ko: "본거주지 (부모/배우자)", en: "Home Address" }, type: "text", def: {ko:"서울특별시 종로구 세종대로 209", en:"209 Sejong-daero, Jongno-gu, Seoul"}, full: true },
+          { key: "startDate", label: { ko: "입주 희망 시작일", en: "Desired Move-in Start Date" }, type: "date", def: {ko:"2026-10-01", en:"2026-10-01"}, full: false },
+          { key: "endDate", label: { ko: "입주 희망 종료일", en: "Desired Move-in End Date" }, type: "date", def: {ko:"2027-03-31", en:"2027-03-31"}, full: false }
+        ]
+      },
+
+      // 2. 입주계
+      moveInPledge: {
+        ko: {
+          tabTitle: "② 입주계 (별표 제3호)",
+          appendix: "[별표 제3호] 공용숙소 입주계 (개정 ‘15. 03. 10, 2025. 2. 1.)",
+          guideline: "(05-15) 공용숙소 관리지침",
+          revision: "",
+          mainTitle: "공용숙소 입주계",
+          fixedBadge: "✓ <strong>사용숙소:</strong> 교육연수동 (고정)",
+          leadText: "본인은 공용숙소 입주에 있어 관리지침에 의한 제사항을 준수할 것을 서약하며 이에 입주계를 제출합니다.",
+          pledgeItems: [
+            "1. 입주 공용숙소는 사용목적 이외에는 사용하지 아니한다.",
+            "2. 입주후 전거 및 퇴거의 사유가 발생하였을 때에는 규정된 기일내에 공용숙소를 깨끗한 상태로 인계한다.",
+            "3. 선량한 사용자로서의 의무를 다하여 공용숙소의 보호유지, 화재의 예방, 전기 · 수도 등의 절약, 공용숙소 내의 질서유지에 최선을 다한다.",
+            "4. 공용숙소 사용료 및 고의 또는 과실로 인한 공용숙소 시설 파손 등에 따른 수리비용을 부담한다.",
+            "5. 공용숙소 시설의 무단 원상 변경행위를 하지 아니한다.",
+            "6. 기타 공용숙소 관리지침에 규정된 제사항을 준수한다."
+          ],
+          signerLabel: "입주자 ：",
+          recipient: "한국해양과학기술원 원장 귀하",
+          metaSource: "form/[별표 제3호] 공용숙소 입주계.hwp 기준"
+        },
+        en: {
+          tabTitle: "② Move-in Form (Appx. 3)",
+          appendix: "Appendix 3 (Amended on Mar. 10, 2015)",
+          guideline: "Residence Regulation (05-15)",
+          revision: "Korea Institute of Ocean Science & Technology",
+          mainTitle: "Residence Move-In Form",
+          fixedBadge: "✓ <strong>Name of Residence:</strong> Education and Training Center (Fixed)",
+          leadText: "I would like to move in to KIOST residence and therefore am submitting this move-in form as follows:",
+          pledgeIntro: "I acknowledge that I agree to abide by the Residence Regulation and accept the following terms and conditions:",
+          pledgeItems: [
+            "1. I will not use my residence for purposes other than its original purpose.",
+            "2. I will return the keys within the specified period should there be any reasons for transfer or move-out.",
+            "3. I will do my best to preserve and maintain the condition of my residence, prevent fire, reduce the consumption of utilities including electricity and water and keep an order inside residence, thereby fulfilling my duty of care and responsibilities as a resident.",
+            "4. I will be responsible for residence fees and cost of repairing any damages caused, intentionally or negligently, to residential facilities",
+            "5. I will not make any alterations or modifications to the exterior or interior of my residence without permission.",
+            "6. I will comply with any other provisions of the Residence Regulation."
+          ],
+          signerLabel: "Signature of Resident :",
+          recipient: "To President of the Korea Institute of Ocean Science & Technology (KIOST)",
+          metaSource: "form/입주계_Residence Move In.docx 기준"
+        },
+        fields: [
+          { key: "affiliation", label: { ko: "소속", en: "Company / Institute" }, type: "text", def: {ko:"해양생명공학연구센터", en:"KIOST"}, full: false },
+          { key: "position", label: { ko: "직급", en: "Title / Position" }, type: "text", def: {ko:"연구원", en:"Researcher"}, full: false },
+          { key: "name", label: { ko: "성명", en: "Applicant Full Name" }, type: "text", def: {ko:"홍길동", en:"Gildong Hong"}, full: false },
+          { key: "roomNo", label: { ko: "사용호실 (숫자만 입력)", en: "Room No. (digits only)" }, type: "text", isRoom: true, def: {ko:"308", en:"308"}, full: false },
+          { key: "nationality", label: { ko: "외국인 국적", en: "Nationality (Foreigner)" }, type: "text", def: {ko:"대한민국", en:"Republic of Korea"}, full: false },
+          { key: "passportNo", label: { ko: "여권번호 / 외국인등록번호", en: "Passport / Alien Reg. No." }, type: "text", def: {ko:"-", en:"-"}, full: false },
+          { key: "startDate", label: { ko: "입주 시작일", en: "Stay Start Date" }, type: "date", def: {ko:"2026-10-01", en:"2026-10-01"}, full: false },
+          { key: "endDate", label: { ko: "입주 종료일", en: "Stay End Date" }, type: "date", def: {ko:"2027-03-31", en:"2027-03-31"}, full: false },
+          { key: "refundBankAndAccount", label: { ko: "환불계좌 (은행명 및 계좌번호)", en: "Refund Bank & Account No." }, type: "text", def: {ko:"국민은행 123-45-678901", en:"KB Bank 123-45-678901"}, full: false },
+          { key: "refundAccountHolder", label: { ko: "환불계좌 예금주", en: "Account Holder Name" }, type: "text", def: {ko:"홍길동", en:"Gildong Hong"}, full: false }
+        ]
+      },
+
+      // 3. 연장신청서
+      extensionApp: {
+        ko: {
+          tabTitle: "③ 연장신청서 (별표 제2호)",
+          appendix: "[별표 제2호] 공용숙소 입주기간 연장신청서 (개정 ‘13. 12. 30, 개정 ‘15. 03. 10)",
+          guideline: "(05-15) 공용숙소 관리지침",
+          revision: "",
+          mainTitle: "공용숙소 입주기간 연장신청서",
+          fixedBadge: "✓ <strong>사용숙소:</strong> 교육연수동 (고정)",
+          leadText: "공용숙소 관리지침에 의거 공용숙소 입주기간을 위와 같이 연장코자 하오니 허가하여 주시기 바랍니다.",
+          signerLabel: "신청인 ：",
+          recipient: "한국해양과학기술원 원장 귀하",
+          metaSource: "form/[별표 제2호] 공용숙소 입주기간 연장신청서.hwp 기준"
+        },
+        en: {
+          tabTitle: "③ Extension Form (Appx. 2)",
+          appendix: "Appendix 2 (Amended on Dec. 30, 2013; Amended on Mar. 10, 2015)",
+          guideline: "Residence Regulation (05-15)",
+          revision: "Korea Institute of Ocean Science & Technology",
+          mainTitle: "Application for Extension of Period of Stay",
+          fixedBadge: "✓ <strong>Name of Residence:</strong> Education and Training Center (Fixed)",
+          leadText: "Please accept my application for the extension of the period of stay in KIOST residence as below in accordance with the Residence Regulation:",
+          signerLabel: "Signature of Applicant :",
+          recipient: "To President of the Korea Institute of Ocean Science & Technology (KIOST)",
+          metaSource: "form/연장신청서_Residence Extenshion of Period of Stay.docx 기준"
+        },
+        fields: [
+          { key: "affiliation", label: { ko: "소속", en: "Company / Institute" }, type: "text", def: {ko:"해양안전연구원", en:"KIOST"}, full: false },
+          { key: "position", label: { ko: "직급", en: "Title / Position" }, type: "text", def: {ko:"선임연구원", en:"Senior Researcher"}, full: false },
+          { key: "name", label: { ko: "성명", en: "Applicant Full Name" }, type: "text", def: {ko:"홍길동", en:"Gildong Hong"}, full: false },
+          { key: "phone", label: { ko: "연락처", en: "Phone Number" }, type: "text", def: {ko:"010-1234-5678", en:"+82-10-1234-5678"}, full: false },
+          { key: "roomNo", label: { ko: "사용호실 (숫자만 입력)", en: "Room No. (digits only)" }, type: "text", isRoom: true, def: {ko:"308", en:"308"}, full: false },
+          { key: "initialMoveIn", label: { ko: "최초입주일", en: "First Move-in Date" }, type: "date", def: {ko:"2026-04-01", en:"2026-04-01"}, full: false },
+          { key: "curStartDate", label: { ko: "현재 입주 시작일", en: "Current Stay Start Date" }, type: "date", def: {ko:"2026-04-01", en:"2026-04-01"}, full: false },
+          { key: "curEndDate", label: { ko: "현재 입주 종료일", en: "Current Stay End Date" }, type: "date", def: {ko:"2026-09-30", en:"2026-09-30"}, full: false },
+          { key: "extStartDate", label: { ko: "연장 희망 시작일", en: "Desired Extension Start Date" }, type: "date", def: {ko:"2026-10-01", en:"2026-10-01"}, full: false },
+          { key: "extEndDate", label: { ko: "연장 희망 종료일", en: "Desired Extension End Date" }, type: "date", def: {ko:"2027-03-31", en:"2027-03-31"}, full: false },
+          { key: "extendCount", label: { ko: "연장회차 (예: 1)", en: "No. of extensions applied" }, type: "text", def: {ko:"1", en:"1"}, full: true }
+        ]
+      },
+
+      // 4. 퇴거계
+      moveOutNotice: {
+        ko: {
+          tabTitle: "④ 퇴거계 (별표 제5호)",
+          appendix: "[별표 제5호] 공용숙소 퇴거계 (개정 ‘13. 12. 30, 개정 ‘15. 03. 10, 2025. 2. 1.)",
+          guideline: "(05-15) 공용숙소 관리지침",
+          revision: "",
+          mainTitle: "공용숙소 퇴거계",
+          fixedBadge: "✓ <strong>사용숙소:</strong> 교육연수동 (고정)",
+          leadText: "상기인은 위와 같은 사유로 공용숙소를 퇴거하고자 퇴거계를 제출합니다.",
+          guidance: "숙소 확인: (확인일자)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(확인부서명)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(확인자)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(인)",
+          signerLabel: "퇴거자 ：",
+          recipient: "한국해양과학기술원 원장 귀하",
+          metaSource: "form/[별표 제5호] 공용숙소 퇴거계.hwp 기준"
+        },
+        en: {
+          tabTitle: "④ Move-out Form (Appx. 4)",
+          appendix: "Appendix 4 (Amended on Dec. 30, 2013; Amended on Mar. 10, 2015)",
+          guideline: "Residence Regulation (05-15)",
+          revision: "Korea Institute of Ocean Science & Technology",
+          mainTitle: "Residence Move-Out Form",
+          fixedBadge: "✓ <strong>Name of Residence:</strong> KIOST Trading Center (Fixed)",
+          leadText: "I would like to move out of KIOST residence due to the reasons stated below and therefore am submitting this move-out form as follows:",
+          guidance: "",
+          signerLabel: "Signature of Resident :",
+          recipient: "To President of the Korea Institute of Ocean Science & Technology (KIOST)",
+          metaSource: "form/퇴거계_Residence Move Out.docx 기준"
+        },
+        fields: [
+          { key: "affiliation", label: { ko: "소속", en: "Company / Institute" }, type: "text", def: {ko:"해양ICT연구단", en:"KIOST"}, full: false },
+          { key: "position", label: { ko: "직급", en: "Title / Position" }, type: "text", def: {ko:"연구원", en:"Researcher"}, full: false },
+          { key: "name", label: { ko: "성명", en: "Applicant Full Name" }, type: "text", def: {ko:"홍길동", en:"Gildong Hong"}, full: true },
+          { key: "roomNo", label: { ko: "사용호실 (숫자만 입력)", en: "Room No. (digits only)" }, type: "text", isRoom: true, def: {ko:"308", en:"308"}, full: false },
+          { key: "moveOutDate", label: { ko: "퇴거 예정일", en: "Date of Move-out" }, type: "date", def: {ko:"2026-09-30", en:"2026-09-30"}, full: false },
+          { key: "nationality", label: { ko: "외국인 국적", en: "Nationality (Foreigner)" }, type: "text", def: {ko:"대한민국", en:"Republic of Korea"}, full: false },
+          { key: "passportNo", label: { ko: "외국인등록번호 / 여권", en: "Alien Reg. No / Passport" }, type: "text", def: {ko:"-", en:"-"}, full: false },
+          { key: "moveOutReason", label: { ko: "퇴거 사유", en: "Reasons for Move-out" }, type: "textarea", def: {ko:"연수 프로그램 이수 완료 및 원 소속기관 복귀.", en:"Completion of training program and returning to home institution."}, full: true },
+          { key: "refundAmount", label: { ko: "환불금액 (해당 시)", en: "Refund Amount (if any)" }, type: "text", def: {ko:"-", en:"-"}, full: false },
+          { key: "refundBankAndAccount", label: { ko: "환불계좌 (은행명 및 계좌번호)", en: "Refund Bank & Account No." }, type: "text", def: {ko:"국민은행 123-45-678901", en:"KB Bank 123-45-678901"}, full: false },
+          { key: "refundAccountHolder", label: { ko: "환불계좌 예금주", en: "Account Holder Name" }, type: "text", def: {ko:"홍길동", en:"Gildong Hong"}, full: true }
+        ]
+      }
+    };
+
+    let currentFormType = 'moveInApp';
+    let formData = {};
+    let sigCanvas, sigCtx, isDrawing = false, hasSignature = false;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initSignaturePad();
+      switchForm('moveInApp');
+    });
+
+    function setLanguage(lang) {
+      currentLanguage = lang;
+      document.getElementById('btn-ko').classList.toggle('active', lang === 'ko');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+      
+      const sheet = document.getElementById('official-paper-preview');
+      if (lang === 'en') {
+        sheet.classList.add('lang-en');
+      } else {
+        sheet.classList.remove('lang-en');
+      }
+
+      document.querySelectorAll('.doc-tab').forEach(tab => {
+        const ft = tab.getAttribute('data-form');
+        tab.textContent = formDefinitions[ft][lang].tabTitle;
+      });
+
+      renderInputFields();
+      renderDocumentSheet();
+    }
+
+    function switchForm(formType) {
+      currentFormType = formType;
+      document.querySelectorAll('.doc-tab').forEach(t => {
+        t.classList.toggle('active', t.getAttribute('data-form') === formType);
+      });
+
+      formData = {};
+      const def = formDefinitions[formType];
+      def.fields.forEach(f => {
+        formData[f.key] = f.def[currentLanguage] || '';
+      });
+
+      renderInputFields();
+      renderDocumentSheet();
+    }
+
+    function renderInputFields() {
+      const def = formDefinitions[currentFormType];
+      const langDef = def[currentLanguage];
+
+      document.getElementById('left-form-heading').textContent = 
+        currentLanguage === 'ko' ? `${langDef.tabTitle} 입력` : `${langDef.tabTitle} Inputs`;
+
+      const container = document.getElementById('input-fields-container');
+      container.innerHTML = '';
+
+      def.fields.forEach(f => {
+        const wrap = document.createElement('div');
+        wrap.className = `fg-item ${f.full ? 'fg-full' : ''}`;
+
+        const lbl = document.createElement('label');
+        lbl.textContent = f.label[currentLanguage];
+        wrap.appendChild(lbl);
+
+        let input;
+        if (f.type === 'textarea') {
+          input = document.createElement('textarea');
+          input.rows = 2;
+          input.value = formData[f.key] || '';
+        } else {
+          input = document.createElement('input');
+          input.type = f.type;
+          input.value = formData[f.key] || '';
+        }
+
+        if (f.key === 'affiliation' && currentLanguage === 'en') {
+          input.value = 'KIOST';
+          input.readOnly = true;
+          input.style.backgroundColor = '#f1f5f9';
+          input.style.color = '#334155';
+          input.style.fontWeight = '600';
+          formData[f.key] = 'KIOST';
+        }
+
+        const handleInput = (e) => {
+          let val = e.target.value;
+          formData[f.key] = val;
+          renderDocumentSheet();
+        };
+
+        const handleBlur = (e) => {
+          if (f.isRoom) {
+            let formatted = formatRoomNumber(e.target.value, currentLanguage);
+            e.target.value = formatted;
+            formData[f.key] = formatted;
+            renderDocumentSheet();
+          }
+        };
+
+        input.addEventListener('input', handleInput);
+        input.addEventListener('change', handleInput);
+        input.addEventListener('blur', handleBlur);
+
+        wrap.appendChild(input);
+        container.appendChild(wrap);
+      });
+    }
+
+    // Render Right Paper Sheet - 100% 원본 HWP/DOCX 규격 및 위치 일치
+    function renderDocumentSheet() {
+      const def = formDefinitions[currentFormType];
+      const langDef = def[currentLanguage];
+      const isKo = (currentLanguage === 'ko');
+
+      document.getElementById('preview-meta-info').textContent = `📌 서식 원본: ${langDef.metaSource} 정밀 매핑`;
+      document.getElementById('lbl-appendix').textContent = langDef.appendix;
+      document.getElementById('lbl-guideline').textContent = langDef.guideline;
+      document.getElementById('lbl-revision').textContent = langDef.revision;
+      document.getElementById('lbl-main-title').textContent = langDef.mainTitle;
+      document.getElementById('lbl-signer-title').textContent = langDef.signerLabel;
+
+      const topRecipientEl = document.getElementById('doc-en-top-recipient');
+      const bottomRecipientEl = document.getElementById('lbl-recipient');
+
+      if (isKo) {
+        topRecipientEl.style.display = 'none';
+        bottomRecipientEl.style.display = 'block';
+        bottomRecipientEl.textContent = langDef.recipient;
+      } else {
+        bottomRecipientEl.style.display = 'none';
+        topRecipientEl.style.display = 'block';
+        topRecipientEl.innerHTML = `
+          <div style="font-size:0.95rem; font-weight:700; color:#000; margin-bottom:8px; text-align:left;">${langDef.recipient},</div>
+          <div style="font-size:0.9rem; line-height:1.6; color:#222; margin-bottom:18px; text-align:left;">${langDef.leadText}</div>
+        `;
+      }
+
+      // Date string
+      const now = new Date();
+      if (currentLanguage === 'ko') {
+        document.getElementById('lbl-doc-date').innerHTML = 
+          `${now.getFullYear()}년 ${String(now.getMonth()+1).padStart(2,'0')}월 ${String(now.getDate()).padStart(2,'0')}일`;
+      } else {
+        document.getElementById('lbl-doc-date').innerHTML = 
+          `Date: ${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}/${now.getFullYear()}<br><span style="font-size:0.75rem; font-weight:normal; color:#555;">(MM/DD/YY)</span>`;
+      }
+
+      // Name & Sign display
+      const signerName = formData['name'] || '-';
+      document.getElementById('disp-sign-name').textContent = signerName;
+
+      // Table Render
+      const tableWrapper = document.getElementById('official-table-wrapper');
+      tableWrapper.innerHTML = generateFormTableHtml(currentFormType, currentLanguage, formData);
+
+      // Clauses & Footnotes Render - 원본 HWP/DOCX 위치 순서 엄격 준수
+      const clausesWrapper = document.getElementById('official-clauses-wrapper');
+      let clausesHtml = '';
+
+      if (currentFormType === 'moveInApp') {
+        if (isKo) {
+          // [입주신청서 HWP 원본 위치 순서]
+          clausesHtml += `<div class="doc-footnotes">${langDef.footnotes}</div>`;
+          clausesHtml += `<div class="doc-lead-center">${langDef.leadText}</div>`;
+          clausesHtml += `<div class="doc-attachments">${langDef.attachments}</div>`;
+        } else {
+          // [입주신청서 DOCX 원본 위치 순서]
+          clausesHtml += `<div class="doc-footnotes" style="font-size:0.78rem; line-height:1.6; margin-top:10px; margin-bottom:12px; text-align:left; font-family:'Times New Roman', serif;">${langDef.footnotes}</div>`;
+          clausesHtml += `<div class="doc-attachments" style="font-size:0.78rem; line-height:1.6; margin-bottom:14px; text-align:left; font-family:'Times New Roman', serif;">${langDef.attachments}</div>`;
+        }
+      } else if (currentFormType === 'moveInPledge') {
+        if (isKo) {
+          clausesHtml += `<div class="doc-lead-center">${langDef.leadText}</div>`;
+        } else if (langDef.pledgeIntro) {
+          clausesHtml += `<div style="font-size:0.83rem; line-height:1.65; color:#000; margin-top:10px; margin-bottom:8px; text-align:left; font-weight:600; font-family:'Times New Roman', serif;">${langDef.pledgeIntro}</div>`;
+        }
+        clausesHtml += `<ul class="pledge-list" style="font-family:${isKo ? 'inherit' : '\'Times New Roman\', serif'};">`;
+        langDef.pledgeItems.forEach(item => {
+          clausesHtml += `<li>${item}</li>`;
+        });
+        clausesHtml += `</ul>`;
+      } else {
+        if (isKo) {
+          clausesHtml += `<div class="doc-lead-center">${langDef.leadText}</div>`;
+        }
+        if (langDef.guidance) {
+          clausesHtml += `<div style="font-size:0.83rem; line-height:1.8; color:#000; margin-top:16px; text-align:center;">${langDef.guidance}</div>`;
+        }
+      }
+
+      clausesWrapper.innerHTML = clausesHtml;
+    }
+
+    // Generate Form-specific Official Table HTML - STRICT REPRODUCTION
+    function generateFormTableHtml(formType, lang, data) {
+      if (lang === 'en') {
+        return generateEnglishDocxTableHtmlTest(formType, data);
+      }
+
+      const isKo = true;
+      const roomFormatted = formatRoomNumber(data.roomNo, 'ko');
+
+      // 1. 입주신청서
+      if (formType === 'moveInApp') {
+        const periodCalculated = calculateDuration(data.startDate, data.endDate, lang);
+        const startDisp = formatDateDisplay(data.startDate, lang);
+        const endDisp = formatDateDisplay(data.endDate, lang);
+
+        return `
+          <table class="kiost-table">
+            <tr>
+              <th>${isKo ? '구   분' : 'Region'}</th>
+              <td colspan="3"><span class="td-value">${isKo ? '부산본원' : 'KIOST Premise'}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '숙소형태' : 'Type of Residence'}</th>
+              <td colspan="3"><span class="td-value">${isKo ? '교육연수동' : 'Education and Training Center (Dormitory)'}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '성    명' : 'Applicant Full Name'}</th>
+              <td><span class="td-value">${data.name || ''}</span></td>
+              <th>${isKo ? '소   속' : 'Company / Institute'}</th>
+              <td><span class="td-value">${data.affiliation || ''}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '직    급' : 'Title / Position'}</th>
+              <td><span class="td-value">${data.position || ''}</span></td>
+              <th>${isKo ? '연 락 처' : 'Phone No.'}</th>
+              <td><span class="td-value">${data.phone || ''}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '현거주지' : 'Current Address'}</th>
+              <td colspan="3" class="text-left"><span class="td-value">${data.currentAddr || ''}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '본거주지' : 'Home Address'}</th>
+              <td colspan="3" class="text-left"><span class="td-value">${data.homeAddr || ''}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '외 국 인' : 'Foreigner Info'}</th>
+              <td colspan="3" class="text-left">
+                ${isKo ? '국적(' : 'Nationality('} <span class="td-value">${data.nationality || '          '}</span> ),&nbsp;&nbsp;&nbsp; 
+                ${isKo ? '외국인 등록번호(' : 'Alien Registration No.('} <span class="td-value">${data.alienNo || '                        '}</span> )
+              </td>
+            </tr>
+            <tr>
+              <th>${isKo ? '입주 희망기간' : 'Desired Period of Stay'}</th>
+              <td colspan="3">
+                <span class="td-value">${startDisp}</span> ～ <span class="td-value">${endDisp}</span>
+                ${periodCalculated ? `&nbsp;&nbsp;(<span class="td-value">${periodCalculated}</span>)` : (isKo ? '&nbsp;&nbsp;(    개월    일)' : '&nbsp;&nbsp;(     months    days)')}
+              </td>
+            </tr>
+          </table>
+        `;
+      } 
+      // 2. 입주계
+      else if (formType === 'moveInPledge') {
+        const startDisp = formatDateDisplay(data.startDate, lang);
+        const endDisp = formatDateDisplay(data.endDate, lang);
+        
+        let refundCombined = '-';
+        if (data.refundBankAndAccount || data.refundAccountHolder) {
+          refundCombined = `${data.refundBankAndAccount || ''} ${data.refundAccountHolder ? `(${isKo ? '예금주: ' : 'Holder: '}${data.refundAccountHolder})` : ''}`.trim();
+        }
+
+        return `
+          <table class="kiost-table">
+            <tr>
+              <th>${isKo ? '소    속' : 'Company / Institute'}</th>
+              <td colspan="3"><span class="td-value">${data.affiliation || ''}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '직    급' : 'Title / Position'}</th>
+              <td colspan="3"><span class="td-value">${data.position || ''}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '성    명' : 'Applicant Full Name'}</th>
+              <td colspan="3"><span class="td-value">${data.name || ''}</span></td>
+            </tr>
+            <tr>
+              <th rowspan="2">${isKo ? '외 국 인' : 'Foreigner Info'}</th>
+              <th style="width:20%;">${isKo ? '국  적' : 'Nationality'}</th>
+              <td colspan="2"><span class="td-value">${data.nationality || '-'}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '여권번호' : 'Alien Reg./Passport'}</th>
+              <td colspan="2"><span class="td-value">${data.passportNo || '-'}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '사용숙소' : 'Name of Residence'}</th>
+              <td colspan="3"><span class="td-value">${isKo ? '교육연수동' : 'Education and Training Center'}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '사용호실' : 'Room No.'}</th>
+              <td colspan="3"><span class="td-value">${roomFormatted || ''}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '입주기간' : 'Period of Stay'}</th>
+              <td colspan="3"><span class="td-value">${startDisp} ～ ${endDisp}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '환불계좌' : 'Refund Account'}</th>
+              <td colspan="3"><span class="td-value">${refundCombined}</span></td>
+            </tr>
+          </table>
+        `;
+      } 
+      // 3. 연장신청서
+      else if (formType === 'extensionApp') {
+        const curDuration = calculateDuration(data.curStartDate, data.curEndDate, lang);
+        const extDuration = calculateDuration(data.extStartDate, data.extEndDate, lang);
+        const curStartDisp = formatDateDisplay(data.curStartDate, lang);
+        const curEndDisp = formatDateDisplay(data.curEndDate, lang);
+        const extStartDisp = formatDateDisplay(data.extStartDate, lang);
+        const extEndDisp = formatDateDisplay(data.extEndDate, lang);
+        const initDisp = formatDateDisplay(data.initialMoveIn, lang);
+
+        return `
+          <table class="kiost-table">
+            <tr>
+              <th>${isKo ? '소    속' : 'Company / Institute'}</th>
+              <td><span class="td-value">${data.affiliation || ''}</span></td>
+              <th>${isKo ? '직    급' : 'Title / Position'}</th>
+              <td><span class="td-value">${data.position || ''}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '성     명' : 'Applicant Full Name'}</th>
+              <td><span class="td-value">${data.name || ''}</span></td>
+              <th>${isKo ? '연 락 처' : 'Phone No.'}</th>
+              <td><span class="td-value">${data.phone || ''}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '사용숙소' : 'Name of Residence'}</th>
+              <td><span class="td-value">${isKo ? '교육연수동' : 'Education and Training Center'}</span></td>
+              <th>${isKo ? '사용호실' : 'Room No.'}</th>
+              <td><span class="td-value">${roomFormatted || ''}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '최초입주일' : 'First Move-in Date'}</th>
+              <td colspan="3"><span class="td-value">${initDisp}</span></td>
+            </tr>
+            <tr>
+              <th rowspan="2">${isKo ? '입주기간' : 'Period of Stay'}</th>
+              <th style="font-weight:600; font-size:0.83rem;">${isKo ? '현재' : 'Until Now'}</th>
+              <td colspan="2">
+                <span class="td-value">${curStartDisp}</span> ～ <span class="td-value">${curEndDisp}</span>
+                ${curDuration ? `&nbsp;&nbsp;(<span class="td-value">${curDuration}</span>)` : (isKo ? '&nbsp;&nbsp;(    개월    일)' : '&nbsp;&nbsp;(     months    days)')}
+              </td>
+            </tr>
+            <tr>
+              <th style="font-weight:600; font-size:0.83rem;">${isKo ? '연장희망' : 'Desired Extension'}</th>
+              <td colspan="2">
+                <span class="td-value">${extStartDisp}</span> ～ <span class="td-value">${extEndDisp}</span>
+                ${extDuration ? `&nbsp;&nbsp;(<span class="td-value">${extDuration}</span>)` : (isKo ? '&nbsp;&nbsp;(    개월    일)' : '&nbsp;&nbsp;(     months    days)')}
+              </td>
+            </tr>
+            <tr>
+              <th>${isKo ? '연장회차' : 'No. of extensions'}</th>
+              <td colspan="3">
+                ${isKo ? `( <span class="td-value" style="display:inline-block; min-width:30px; text-align:center;">${data.extendCount || '   '}</span> ) 회차` : `No. of extensions applied for this time: ( <span class="td-value">${data.extendCount || '   '}</span> )`}
+              </td>
+            </tr>
+          </table>
+        `;
+      } 
+      // 4. 퇴거계
+      else if (formType === 'moveOutNotice') {
+        const moveOutDisp = formatDateDisplay(data.moveOutDate, lang);
+        
+        let refundCombined = '-';
+        if (data.refundBankAndAccount || data.refundAccountHolder) {
+          refundCombined = `${data.refundBankAndAccount || ''} ${data.refundAccountHolder ? `(${isKo ? '예금주: ' : 'Holder: '}${data.refundAccountHolder})` : ''}`.trim();
+        }
+
+        return `
+          <table class="kiost-table">
+            <tr>
+              <th>${isKo ? '소    속' : 'Company / Institute'}</th>
+              <td><span class="td-value">${data.affiliation || ''}</span></td>
+              <th>${isKo ? '직   급' : 'Title / Position'}</th>
+              <td><span class="td-value">${data.position || ''}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '성    명' : 'Applicant Full Name'}</th>
+              <td colspan="3"><span class="td-value">${data.name || ''}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '사용숙소' : 'Name of Residence'}</th>
+              <td><span class="td-value">${isKo ? '교육연수동' : 'Education and Training Center'}</span></td>
+              <th>${isKo ? '사용호실' : 'Room No.'}</th>
+              <td><span class="td-value">${roomFormatted || ''}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '외 국 인' : 'Foreigner Info'}</th>
+              <td colspan="3" class="text-left">
+                ${isKo ? '국적(' : 'Nationality('} <span class="td-value">${data.nationality || '          '}</span> ),&nbsp;&nbsp;&nbsp; 
+                ${isKo ? '여권번호(' : 'Alien Reg./Passport('} <span class="td-value">${data.passportNo || '                        '}</span> )
+              </td>
+            </tr>
+            <tr>
+              <th>${isKo ? '퇴거예정일' : 'Date of Move-out'}</th>
+              <td colspan="3"><span class="td-value">${moveOutDisp}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '퇴거사유' : 'Reasons for Move-out'}</th>
+              <td colspan="3" class="text-left"><span class="td-value">${data.moveOutReason || ''}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '환불금액' : 'Refund Amount'}</th>
+              <td><span class="td-value">${data.refundAmount || '-'}</span></td>
+              <th>${isKo ? '환불계좌' : 'Refund Account'}</th>
+              <td><span class="td-value">${refundCombined}</span></td>
+            </tr>
+            <tr>
+              <th>${isKo ? '숙소 확인' : 'Inspection'}</th>
+              <td colspan="3" style="font-size:0.8rem; color:#444;">
+                ${isKo ? '(확인일자)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(확인부서명)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(확인자)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(인)' : '(Date) ____________  (Dept) ____________  (Inspector) ____________ (Sign)'}
+              </td>
+            </tr>
+          </table>
+        `;
+      }
+    }
+
+    // Generate Official English Table HTML for Test Tool - 100% EXACT TO DOCX TEMPLATES
+    function generateEnglishDocxTableHtmlTest(formType, data) {
+      const roomFormatted = formatRoomNumber(data.roomNo, 'en');
+
+      // 1. Residence Application (DOCX Appendix 1)
+      if (formType === 'moveInApp') {
+        const duration = calculateDuration(data.startDate, data.endDate, 'en');
+        const startDisp = formatDateDisplay(data.startDate, 'en');
+        const endDisp = formatDateDisplay(data.endDate, 'en');
+
+        return `
+          <table style="width:100%; border-collapse:collapse; border:1.5px solid #000; font-size:0.8rem; margin-bottom:14px; font-family:'Times New Roman', serif;">
+            <colgroup>
+              <col style="width: 20%;">
+              <col style="width: 24%;">
+              <col style="width: 10%;">
+              <col style="width: 18%;">
+              <col style="width: 14%;">
+              <col style="width: 14%;">
+            </colgroup>
+            <tr>
+              <td rowspan="2" style="border:1px solid #000; padding:6px 6px; font-weight:700; text-align:center; vertical-align:middle; background:#f9fafb;">KIOST</td>
+              <td colspan="3" style="border:1px solid #000; padding:6px 8px; font-size:0.75rem; vertical-align:middle; line-height:1.5;">
+                Staff residence: on-KIOST premise &#9675;&nbsp;&nbsp;off-KIOST premise &#9675;<br>
+                Dormitory:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;on-KIOST premise &#9675;&nbsp;&nbsp;off-KIOST premise &#9675;
+              </td>
+              <td rowspan="2" style="border:1px solid #000; padding:6px 6px; font-weight:700; text-align:center; vertical-align:middle; background:#f9fafb;">Type of residence</td>
+              <td rowspan="2" style="border:1px solid #000; padding:6px 6px; text-align:center; vertical-align:middle;">-</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #000; padding:5px 6px; font-size:0.75rem; text-align:center; vertical-align:middle;">Executive Residence &#9675;</td>
+              <td colspan="2" style="border:1px solid #000; padding:5px 6px; font-size:0.75rem; font-weight:700; text-align:center; vertical-align:middle; background:#f0fdf4;">Education and Training Center (Dormitory) &#9745;</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #000; padding:4px 6px; font-weight:600; text-align:center; vertical-align:middle; background:#f9fafb; font-size:0.73rem;">South Sea Research Institute</td>
+              <td colspan="3" style="border:1px solid #000; padding:4px 6px; font-size:0.72rem; vertical-align:middle;">
+                Staff residence: on-KIOST premise &#9675; off-KIOST premise &#9675; &nbsp;|&nbsp; Dormitory: on-KIOST premise &#9675; off-KIOST premise &#9675;
+              </td>
+              <td style="border:1px solid #000; padding:4px 6px; text-align:center; vertical-align:middle; font-size:0.73rem;">Type of residence</td>
+              <td style="border:1px solid #000; padding:4px 6px; text-align:center; vertical-align:middle;">-</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #000; padding:4px 6px; font-weight:600; text-align:center; vertical-align:middle; background:#f9fafb; font-size:0.73rem;">East Sea Research Institute</td>
+              <td colspan="3" style="border:1px solid #000; padding:4px 6px; font-size:0.72rem; vertical-align:middle;">
+                Staff residence: on-KIOST premise &#9675; off-KIOST premise &#9675; &nbsp;|&nbsp; Dormitory: on-KIOST premise &#9675; off-KIOST premise &#9675;
+              </td>
+              <td style="border:1px solid #000; padding:4px 6px; text-align:center; vertical-align:middle; font-size:0.73rem;">Type of residence</td>
+              <td style="border:1px solid #000; padding:4px 6px; text-align:center; vertical-align:middle;">-</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #000; padding:4px 6px; font-weight:600; text-align:center; vertical-align:middle; background:#f9fafb; font-size:0.73rem;">Ulleungdo·Dokdo Ocean Science Station</td>
+              <td colspan="3" style="border:1px solid #000; padding:4px 6px; font-size:0.72rem; vertical-align:middle;">
+                Staff residence: on-KIOST premise &#9675; off-KIOST premise &#9675; &nbsp;|&nbsp; Dormitory: on-KIOST premise &#9675; off-KIOST premise &#9675;
+              </td>
+              <td style="border:1px solid #000; padding:4px 6px; text-align:center; vertical-align:middle; font-size:0.73rem;">Type of residence</td>
+              <td style="border:1px solid #000; padding:4px 6px; text-align:center; vertical-align:middle;">-</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #000; padding:4px 6px; font-weight:600; text-align:center; vertical-align:middle; background:#f9fafb; font-size:0.73rem;">Jeju Research Institute</td>
+              <td colspan="3" style="border:1px solid #000; padding:4px 6px; font-size:0.72rem; vertical-align:middle;">
+                Staff residence: on-KIOST premise &#9675; off-KIOST premise &#9675; &nbsp;|&nbsp; Dormitory: on-KIOST premise &#9675; off-KIOST premise &#9675;
+              </td>
+              <td style="border:1px solid #000; padding:4px 6px; text-align:center; vertical-align:middle; font-size:0.73rem;">Type of residence</td>
+              <td style="border:1px solid #000; padding:4px 6px; text-align:center; vertical-align:middle;">-</td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:6px 8px; background:#f9fafb; text-align:center; vertical-align:middle;">Applicant’s full name</th>
+              <td colspan="2" style="border:1px solid #000; padding:6px 8px; font-weight:600; text-align:center; vertical-align:middle;">${data.name || ''}</td>
+              <th colspan="2" style="border:1px solid #000; padding:6px 8px; background:#f9fafb; text-align:center; vertical-align:middle;">Name of company/institute</th>
+              <td style="border:1px solid #000; padding:6px 8px; font-weight:600; text-align:center; vertical-align:middle;">KIOST</td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:6px 8px; background:#f9fafb; text-align:center; vertical-align:middle;">Title/Position</th>
+              <td colspan="2" style="border:1px solid #000; padding:6px 8px; font-weight:600; text-align:center; vertical-align:middle;">${data.position || ''}</td>
+              <th colspan="2" style="border:1px solid #000; padding:6px 8px; background:#f9fafb; text-align:center; vertical-align:middle;">Phone no.</th>
+              <td style="border:1px solid #000; padding:6px 8px; font-weight:600; text-align:center; vertical-align:middle;">${data.phone || ''}</td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:6px 8px; background:#f9fafb; text-align:center; vertical-align:middle;">Current address</th>
+              <td colspan="5" style="border:1px solid #000; padding:6px 8px; font-weight:600; text-align:left; vertical-align:middle;">${data.currentAddr || ''}</td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:6px 8px; background:#f9fafb; text-align:center; vertical-align:middle;">Home address</th>
+              <td colspan="5" style="border:1px solid #000; padding:6px 8px; font-weight:600; text-align:left; vertical-align:middle;">${data.homeAddr || ''}</td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:6px 8px; background:#f9fafb; text-align:center; vertical-align:middle;">Foreigner information</th>
+              <td colspan="5" style="border:1px solid #000; padding:6px 8px; text-align:left; vertical-align:middle;">
+                Nationality: <strong style="display:inline-block; min-width:120px; border-bottom:1px solid #555; padding:0 4px; text-align:center;">${data.nationality || '          '}</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Alien Registration No.: <strong style="display:inline-block; min-width:160px; border-bottom:1px solid #555; padding:0 4px; text-align:center;">${data.alienNo || '                    '}</strong>
+              </td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:6px 8px; background:#f9fafb; text-align:center; vertical-align:middle;">Desired period of stay</th>
+              <td colspan="5" style="border:1px solid #000; padding:6px 8px; font-weight:600; text-align:center; vertical-align:middle;">
+                From <u>&nbsp;${startDisp}&nbsp;</u> to <u>&nbsp;${endDisp}&nbsp;</u> &nbsp;&nbsp;(${duration ? duration : '_____ months _____ days'})<br>
+                <span style="font-size:0.75rem; font-weight:normal; color:#555;">(MM/DD/YY)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(MM/DD/YY)</span>
+              </td>
+            </tr>
+          </table>
+        `;
+      }
+      // 2. Residence Move-In Form (DOCX Appendix 3)
+      else if (formType === 'moveInPledge') {
+        const startDisp = formatDateDisplay(data.startDate, 'en');
+        const endDisp = formatDateDisplay(data.endDate, 'en');
+
+        return `
+          <table style="width:100%; border-collapse:collapse; border:1.5px solid #000; font-size:0.85rem; margin-bottom:14px; font-family:'Times New Roman', serif;">
+            <colgroup>
+              <col style="width: 18%;">
+              <col style="width: 13%;">
+              <col style="width: 29%;">
+              <col style="width: 20%;">
+              <col style="width: 20%;">
+            </colgroup>
+            <tr>
+              <th style="border:1px solid #000; padding:8px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Name of company/institute</th>
+              <td colspan="4" style="border:1px solid #000; padding:8px 10px; font-weight:600; text-align:left; vertical-align:middle;">KIOST</td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:8px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Title/Position</th>
+              <td colspan="4" style="border:1px solid #000; padding:8px 10px; font-weight:600; text-align:left; vertical-align:middle;">${data.position || ''}</td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:8px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Applicant’s full name</th>
+              <td colspan="4" style="border:1px solid #000; padding:8px 10px; font-weight:600; text-align:left; vertical-align:middle;">${data.name || ''}</td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:8px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Foreigner information</th>
+              <th style="border:1px solid #000; padding:8px 8px; background:#f9fafb; text-align:center; vertical-align:middle;">Nationality</th>
+              <td style="border:1px solid #000; padding:8px 8px; font-weight:600; text-align:center; vertical-align:middle;">${data.nationality || '-'}</td>
+              <th style="border:1px solid #000; padding:8px 8px; background:#f9fafb; text-align:center; vertical-align:middle;">Alien Registration No.</th>
+              <td style="border:1px solid #000; padding:8px 8px; font-weight:600; text-align:center; vertical-align:middle;">${data.passportNo || '-'}</td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:8px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Name of residence</th>
+              <td colspan="4" style="border:1px solid #000; padding:8px 10px; font-weight:600; text-align:left; vertical-align:middle;">Education and Training Center</td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:8px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Room no.</th>
+              <td colspan="4" style="border:1px solid #000; padding:8px 10px; font-weight:600; text-align:left; vertical-align:middle;">${roomFormatted || ''}</td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:8px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Period of stay</th>
+              <td colspan="4" style="border:1px solid #000; padding:8px 10px; font-weight:600; text-align:left; vertical-align:middle;">From ${startDisp} to ${endDisp}</td>
+            </tr>
+          </table>
+        `;
+      }
+      // 3. Application for Extension of Period of Stay (DOCX Appendix 2)
+      else if (formType === 'extensionApp') {
+        const curDuration = calculateDuration(data.curStartDate, data.curEndDate, 'en');
+        const extDuration = calculateDuration(data.extStartDate, data.extEndDate, 'en');
+        const curStartDisp = formatDateDisplay(data.curStartDate, 'en');
+        const curEndDisp = formatDateDisplay(data.curEndDate, 'en');
+        const extStartDisp = formatDateDisplay(data.extStartDate, 'en');
+        const extEndDisp = formatDateDisplay(data.extEndDate, 'en');
+        const initDisp = formatDateDisplay(data.initialMoveIn, 'en');
+
+        return `
+          <table style="width:100%; border-collapse:collapse; border:1.5px solid #000; font-size:0.85rem; margin-bottom:14px; font-family:'Times New Roman', serif;">
+            <colgroup>
+              <col style="width: 9%;">
+              <col style="width: 10%;">
+              <col style="width: 32%;">
+              <col style="width: 18%;">
+              <col style="width: 31%;">
+            </colgroup>
+            <tr>
+              <th colspan="2" style="border:1px solid #000; padding:7px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Name of company/institute</th>
+              <td style="border:1px solid #000; padding:7px 10px; font-weight:600; text-align:center; vertical-align:middle;">KIOST</td>
+              <th style="border:1px solid #000; padding:7px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Title/Position</th>
+              <td style="border:1px solid #000; padding:7px 10px; font-weight:600; text-align:center; vertical-align:middle;">${data.position || ''}</td>
+            </tr>
+            <tr>
+              <th colspan="2" style="border:1px solid #000; padding:7px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Applicant’s full name</th>
+              <td style="border:1px solid #000; padding:7px 10px; font-weight:600; text-align:center; vertical-align:middle;">${data.name || ''}</td>
+              <th style="border:1px solid #000; padding:7px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Phone no.</th>
+              <td style="border:1px solid #000; padding:7px 10px; font-weight:600; text-align:center; vertical-align:middle;">${data.phone || ''}</td>
+            </tr>
+            <tr>
+              <th colspan="2" style="border:1px solid #000; padding:7px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Name of residence Center</th>
+              <td colspan="3" style="border:1px solid #000; padding:7px 10px; font-weight:600; text-align:left; vertical-align:middle;">Education and Training Center</td>
+            </tr>
+            <tr>
+              <th colspan="2" style="border:1px solid #000; padding:7px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Room no.</th>
+              <td colspan="3" style="border:1px solid #000; padding:7px 10px; font-weight:600; text-align:left; vertical-align:middle;">${roomFormatted || ''}</td>
+            </tr>
+            <tr>
+              <th colspan="2" style="border:1px solid #000; padding:7px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">First move-in date</th>
+              <td colspan="3" style="border:1px solid #000; padding:7px 10px; font-weight:600; text-align:left; vertical-align:middle;">${initDisp}</td>
+            </tr>
+            <tr>
+              <th rowspan="2" style="border:1px solid #000; padding:7px 8px; background:#f9fafb; text-align:center; vertical-align:middle;">Period of stay</th>
+              <th style="border:1px solid #000; padding:7px 8px; background:#f9fafb; text-align:center; vertical-align:middle; font-size:0.8rem;">Until now</th>
+              <td colspan="3" style="border:1px solid #000; padding:7px 10px; font-weight:600; text-align:center; vertical-align:middle;">
+                From <u>&nbsp;${curStartDisp}&nbsp;</u> to <u>&nbsp;${curEndDisp}&nbsp;</u> &nbsp;&nbsp;(${curDuration || '_____ months _____ days'})<br>
+                <span style="font-size:0.75rem; font-weight:normal; color:#555;">(MM/DD/YY)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(MM/DD/YY)</span>
+              </td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:7px 8px; background:#f9fafb; text-align:center; vertical-align:middle; font-size:0.8rem;">Desired extension period</th>
+              <td colspan="3" style="border:1px solid #000; padding:7px 10px; font-weight:600; text-align:center; vertical-align:middle;">
+                From <u>&nbsp;${extStartDisp}&nbsp;</u> to <u>&nbsp;${extEndDisp}&nbsp;</u> &nbsp;&nbsp;(${extDuration || '_____ months _____ days'})<br>
+                <span style="font-size:0.75rem; font-weight:normal; color:#555;">(MM/DD/YY)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(MM/DD/YY)</span>
+              </td>
+            </tr>
+            <tr>
+              <th colspan="2" style="border:1px solid #000; padding:7px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">No. of extensions applied for this time</th>
+              <td colspan="3" style="border:1px solid #000; padding:7px 10px; font-weight:600; text-align:center; vertical-align:middle;">
+                ( <span style="display:inline-block; min-width:30px; text-align:center;">${data.extendCount || '   '}</span> )
+              </td>
+            </tr>
+          </table>
+        `;
+      }
+      // 4. Residence Move-Out Form (DOCX Appendix 4)
+      else if (formType === 'moveOutNotice') {
+        const moveOutDisp = formatDateDisplay(data.moveOutDate, 'en');
+
+        return `
+          <table style="width:100%; border-collapse:collapse; border:1.5px solid #000; font-size:0.85rem; margin-bottom:14px; font-family:'Times New Roman', serif;">
+            <colgroup>
+              <col style="width: 18%;">
+              <col style="width: 36%;">
+              <col style="width: 18%;">
+              <col style="width: 28%;">
+            </colgroup>
+            <tr>
+              <th style="border:1px solid #000; padding:8px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Name of company/institute</th>
+              <td style="border:1px solid #000; padding:8px 10px; font-weight:600; text-align:center; vertical-align:middle;">KIOST</td>
+              <th style="border:1px solid #000; padding:8px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Title/Position</th>
+              <td style="border:1px solid #000; padding:8px 10px; font-weight:600; text-align:center; vertical-align:middle;">${data.position || ''}</td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:8px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Applicant’s full name</th>
+              <td colspan="3" style="border:1px solid #000; padding:8px 10px; font-weight:600; text-align:left; vertical-align:middle;">${data.name || ''}</td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:8px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Name of residence</th>
+              <td colspan="3" style="border:1px solid #000; padding:8px 10px; font-weight:600; text-align:left; vertical-align:middle;">KIOST Trading Center</td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:8px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Room no.</th>
+              <td colspan="3" style="border:1px solid #000; padding:8px 10px; font-weight:600; text-align:left; vertical-align:middle;">${roomFormatted || ''}</td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:8px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Foreigner information</th>
+              <td colspan="3" style="border:1px solid #000; padding:8px 10px; text-align:left; vertical-align:middle;">
+                Nationality: <strong style="display:inline-block; min-width:110px; border-bottom:1px solid #555; padding:0 4px; text-align:center;">${data.nationality || '          '}</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Alien Registration No.: <strong style="display:inline-block; min-width:150px; border-bottom:1px solid #555; padding:0 4px; text-align:center;">${data.passportNo || '                    '}</strong>
+              </td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:8px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Date of move-out</th>
+              <td colspan="3" style="border:1px solid #000; padding:8px 10px; font-weight:600; text-align:left; vertical-align:middle;">
+                <u style="display:inline-block; min-width:110px; text-align:center;">${moveOutDisp}</u> &nbsp;&nbsp;<span style="font-size:0.75rem; color:#555; font-weight:normal;">(MM/DD/YY)</span>
+              </td>
+            </tr>
+            <tr>
+              <th style="border:1px solid #000; padding:8px 10px; background:#f9fafb; text-align:left; vertical-align:middle;">Reasons for move-out</th>
+              <td colspan="3" style="border:1px solid #000; padding:8px 10px; font-weight:600; text-align:left; vertical-align:middle; min-height:48px;">${data.moveOutReason || ''}</td>
+            </tr>
+          </table>
+        `;
+      }
+    }
+
+    // Signature Pad logic
+    function initSignaturePad() {
+      sigCanvas = document.getElementById('test-sig-canvas');
+      sigCtx = sigCanvas.getContext('2d');
+      sigCanvas.width = 420;
+      sigCanvas.height = 120;
+      sigCtx.lineWidth = 2.5;
+      sigCtx.lineCap = 'round';
+      sigCtx.strokeStyle = '#000000';
+
+      function getPos(e) {
+        const rect = sigCanvas.getBoundingClientRect();
+        const scaleX = sigCanvas.width / rect.width;
+        const scaleY = sigCanvas.height / rect.height;
+        if (e.touches && e.touches.length > 0) {
+          return {
+            x: (e.touches[0].clientX - rect.left) * scaleX,
+            y: (e.touches[0].clientY - rect.top) * scaleY
+          };
+        }
+        return {
+          x: (e.clientX - rect.left) * scaleX,
+          y: (e.clientY - rect.top) * scaleY
+        };
+      }
+
+      function startDraw(e) {
+        e.preventDefault();
+        isDrawing = true;
+        hasSignature = true;
+        const pos = getPos(e);
+        sigCtx.beginPath();
+        sigCtx.moveTo(pos.x, pos.y);
+      }
+      function draw(e) {
+        if (!isDrawing) return;
+        e.preventDefault();
+        const pos = getPos(e);
+        sigCtx.lineTo(pos.x, pos.y);
+        sigCtx.stroke();
+      }
+      function stopDraw() {
+        if (isDrawing) {
+          isDrawing = false;
+          updateSignatureInDoc();
+        }
+      }
+
+      sigCanvas.addEventListener('mousedown', startDraw);
+      sigCanvas.addEventListener('mousemove', draw);
+      window.addEventListener('mouseup', stopDraw);
+
+      sigCanvas.addEventListener('touchstart', startDraw, { passive: false });
+      sigCanvas.addEventListener('touchmove', draw, { passive: false });
+      window.addEventListener('touchend', stopDraw);
+    }
+
+    function clearTestSignature() {
+      sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+      hasSignature = false;
+      document.getElementById('disp-sign-img').style.display = 'none';
+      document.getElementById('sign-placeholder-txt').style.display = 'inline';
+    }
+
+    function updateSignatureInDoc() {
+      if (!hasSignature) return;
+      const dataUrl = sigCanvas.toDataURL('image/png');
+      const img = document.getElementById('disp-sign-img');
+      img.src = dataUrl;
+      img.style.display = 'block';
+      document.getElementById('sign-placeholder-txt').style.display = 'none';
+    }
+
+    // Quick Fill Sample Data
+    function quickFillSampleData() {
+      clearTestSignature();
+      sigCtx.beginPath();
+      sigCtx.moveTo(40, 60);
+      sigCtx.bezierCurveTo(90, 20, 140, 100, 200, 50);
+      sigCtx.bezierCurveTo(240, 20, 280, 80, 340, 55);
+      sigCtx.stroke();
+      hasSignature = true;
+      updateSignatureInDoc();
+
+      alert(currentLanguage === 'ko' ? '샘플 서명 및 공문서 기본값이 로드되었습니다.' : 'Sample signature & official values loaded.');
+    }
+
+    // Export Sheet to PDF
+    async function exportPaperToPdf() {
+      const sheet = document.getElementById('official-paper-preview');
+      const langDef = formDefinitions[currentFormType][currentLanguage];
+      const filename = `${langDef.mainTitle}_${formData.name || '신청'}.pdf`;
+
+      const canvas = await html2canvas(sheet, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      const imgWidth = 210;
+      const pageHeight = 297;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+      pdf.save(filename);
+    }
+
+    // Google Apps Script 배포 URL 상수
+    const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbzUALMG5SCQ3AB1KBBpTvJdlBKc1EClsuP4lVgSBGMWocUO7XK42TcQqDTZIEcWdU5IxQ/exec";
+
+    // LocalStorage for GAS URL
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedGasUrl = localStorage.getItem('kiost_gas_url') || DEFAULT_GAS_URL;
+      const gasInput = document.getElementById('gas-url');
+      if (gasInput) {
+        gasInput.value = savedGasUrl;
+        gasInput.addEventListener('change', (e) => {
+          localStorage.setItem('kiost_gas_url', e.target.value.trim());
+        });
+      }
+    });
+
+    // Helper: Convert Blob to Base64
+    function blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64String = reader.result.split(',')[1];
+          resolve(base64String);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    // Send Email (Real Google Apps Script or Simulation)
+    async function testSendEmail() {
+      const langDef = formDefinitions[currentFormType][currentLanguage];
+      const applicant = formData.name || '-';
+      const targetEmail = document.getElementById('admin-email').value;
+      const gasUrlInput = document.getElementById('gas-url');
+      const gasUrl = (gasUrlInput && gasUrlInput.value.trim()) || localStorage.getItem('kiost_gas_url') || DEFAULT_GAS_URL;
+
+      const btn = event ? event.target : null;
+      let origText = '';
+      if (btn) {
+        origText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = '⏳ PDF 생성 및 발송 중...';
+      }
+
+      try {
+        // Generate PDF Blob
+        const sheet = document.getElementById('official-paper-preview');
+        const filename = `${langDef.mainTitle}_${formData.name || '신청'}.pdf`;
+
+        const canvas = await html2canvas(sheet, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff'
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.98);
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgWidth = 210;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+        const pdfBlob = pdf.output('blob');
+
+        if (gasUrl) {
+          // Real Google Apps Script Dispatch
+          const pdfBase64 = await blobToBase64(pdfBlob);
+          const payload = {
+            adminEmail: targetEmail,
+            applicantName: applicant,
+            docTitle: langDef.mainTitle,
+            fileName: filename,
+            pdfBase64: pdfBase64
+          };
+
+          await fetch(gasUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+          });
+
+          alert(`[Google Apps Script 실전 발송 완료!]\n\n신청자: ${applicant}\n서류: ${langDef.mainTitle}\n\n담당자 메일함으로 전자서명된 정식 PDF가 성공적으로 발송되었습니다.`);
+        } else {
+          // Simulation 안내
+          alert(`[담당자 메일 발송 시뮬레이션]\n\n신청자: ${applicant}\n서류: ${langDef.mainTitle}\n첨부파일: ${filename}\n\n※ 현재 Google Apps Script 웹 앱 URL이 입력되지 않아 시뮬레이션으로 동작했습니다.`);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('발송 처리 중 오류가 발생했습니다: ' + err.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = origText;
+        }
+      }
+    }
+  </script>
+</body>
+</html>

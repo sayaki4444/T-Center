@@ -1,0 +1,16 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "**/.*",
+      "**/node_modules/**",
+      "form/**",
+      "google-apps-script.js",
+      "*.txt",
+      "WORK.md",
+      "GEMINI.md"
+    ]
+  }
+}
