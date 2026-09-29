@@ -1,7 +1,7 @@
 {
-  "name": "KIOST 교육연수동 공용숙소 포털",
-  "short_name": "KIOST 숙소",
-  "description": "한국해양과학기술원(KIOST) 교육연수동 공용숙소 간편 서류 제출 및 전자 서식 포털",
+  "name": "교육연수동 서류제출",
+  "short_name": "교육연수동 서류제출",
+  "description": "교육연수동 공용숙소 간편 서류 제출 및 전자 서식 포털",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
