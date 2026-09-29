@@ -323,6 +323,13 @@ document.addEventListener('DOMContentLoaded', () => {
   initReviewEvents();
   applyLanguage(currentLang);
 
+  // PWA shortcut / URL parameter navigation
+  const urlParams = new URLSearchParams(window.location.search);
+  const docParam = urlParams.get('doc');
+  if (docParam && docSchemas[docParam]) {
+    selectDocType(docParam);
+  }
+
   const emailInput = document.getElementById('admin-email-input');
   if (emailInput) emailInput.value = "yoonbs@kiost.ac.kr";
 
@@ -1365,4 +1372,15 @@ function renderCompleteSummary(adminEmail) {
       }
     </p>
   `;
+}
+
+// Register PWA Service Worker for Offline Caching & Installation
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').then((reg) => {
+      console.log('[PWA] Service Worker registered successfully with scope:', reg.scope);
+    }).catch((err) => {
+      console.warn('[PWA] Service Worker registration failed:', err);
+    });
+  });
 }

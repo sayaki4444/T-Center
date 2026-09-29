@@ -1,0 +1,71 @@
+{
+  "name": "KIOST 교육연수동 공용숙소 포털",
+  "short_name": "KIOST 숙소",
+  "description": "한국해양과학기술원(KIOST) 교육연수동 공용숙소 간편 서류 제출 및 전자 서식 포털",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f8fafc",
+  "theme_color": "#1e3a8a",
+  "icons": [
+    {
+      "src": "Icon/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "Icon/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "Icon/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "Icon/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "Icon/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "입주신청서 작성",
+      "short_name": "입주신청",
+      "description": "공용숙소 입주신청서 작성",
+      "url": "./index.html?doc=moveInApp",
+      "icons": [{ "src": "Icon/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "입주계 작성",
+      "short_name": "입주계",
+      "description": "공용숙소 입주계 작성",
+      "url": "./index.html?doc=moveInPledge",
+      "icons": [{ "src": "Icon/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "연장신청서 작성",
+      "short_name": "연장신청",
+      "description": "공용숙소 입주기간 연장신청서 작성",
+      "url": "./index.html?doc=extensionApp",
+      "icons": [{ "src": "Icon/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "퇴거계 작성",
+      "short_name": "퇴거계",
+      "description": "공용숙소 퇴거계 작성",
+      "url": "./index.html?doc=moveOutNotice",
+      "icons": [{ "src": "Icon/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
