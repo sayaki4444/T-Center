@@ -360,3 +360,26 @@
     3. **Extension Form:** company 란이 'KIOST'로 고정되었는지, 체류기간 및 연장회차 표 간격이 균형 있게 배치되었는지 확인
     4. **Move-out Form:** company 란이 'KIOST'로 고정되고, Name of residence 가 'KIOST Trading Center'로 고정되었는지 확인
 ---
+
+### [2026-09-29 11:55] GitHub 및 Firebase Hosting 배포 완료
+
+- **작업 목적:** 사용자의 배포 요청에 따라 영문 서식 4종 정밀 수정본을 포함한 전체 프로젝트를 GitHub 신규 리포지토리에 푸시하고 Firebase Hosting에 프로덕션 배포 완료
+- **수정/생성된 파일:**
+  - `.gitignore`: git 관리 제외 항목 지정 (.firebase, .firebaserc, node_modules 등)
+  - `WORK.md`: 작업 내역 누적 기록
+- **주요 변경 사항:**
+  - **1. GitHub 리포지토리 생성 및 푸시 완료:**
+    - GitHub 리포지토리 생성: `https://github.com/sayaki4444/T-Center`
+    - `main` 브랜치로 전체 소스 코드(국/영문 공식 서식, 서식 테스트 도구 등) 푸시 완료
+  - **2. Firebase Hosting 배포 완료:**
+    - 프로젝트: `kiost-tcenter`
+    - 배포 URL: `https://kiost-tcenter.web.app`
+    - 정적 호스팅 파일 업로드 및 새 버전 릴리스 완료
+- **테스트 및 검증 방법:**
+  - **배포 라이브 사이트 검증:**
+    - `https://kiost-tcenter.web.app` 접속
+    - 상단 언어 선택(한국어 / English) 및 서식 선택(입주신청서, 입주계, 연장신청서, 퇴거계) 동작 확인
+    - 서식 테스트 도구(`https://kiost-tcenter.web.app/test.html`) 정상 동작 확인
+  - **GitHub 리포지토리 검증:**
+    - `https://github.com/sayaki4444/T-Center` 접속하여 커밋 내역 확인
+---
