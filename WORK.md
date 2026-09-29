@@ -430,5 +430,31 @@
   - Firebase Hosting 및 GitHub 최신 배포 완료
 - **테스트 및 검증 방법:**
   - 모바일 브라우저(Safari/Chrome)에서 `https://kiost-tcenter.web.app` 접속
-  - [홈 화면에 추가] 실행 시 바로가기 기본 이름이 **'교육연수동 서류제출'** 로 자동 지정되는지 확인
+---
+
+### [2026-09-29 14:24] 시스템 5대 보안 취약점 전면 보강 및 배포 완료
+
+- **작업 목적:** XSS 인젝션 방지, HTTP 보안 헤더 적용, 이메일 오픈 릴레이 악용 차단, 클라이언트 담당자 메일 고정 및 입력 데이터 길이 제한 등 전면적인 보안 강화 조치 적용
+- **수정/생성된 파일:**
+  - `firebase.json`: `headers` 설정을 통해 5대 표준 HTTP 보안 헤더(X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, HSTS) 적용
+  - `app.js`: XSS 방지 엔티티 이스케이프 함수(`escapeHtml`, `getSanitizedData`) 적용, 폼 필드별 최대 길이(`maxLength`) 제한 적용
+  - `test.html`: XSS 방지 엔티티 이스케이프 함수(`escapeHtml`, `getSanitizedData`) 적용
+  - `google-apps-script.js`: 수신자 이메일 도메인 검증(`@kiost.ac.kr` 한정), 이메일 헤더 CRLF 인젝션 방지 정제 및 15MB 페이로드 제한 적용
+  - `WORK.md`: 작업 내역 누적 기록
+- **주요 변경 사항:**
+  - **1. DOM 기반 XSS 원천 차단:**
+    - 사용자가 입력한 모든 필드 데이터가 서식 테이블 및 미리보기 HTML에 렌더링될 때 `&`, `<`, `>`, `"`, `'` 특수문자를 HTML 엔티티로 안전하게 변환
+  - **2. HTTP 보안 헤더 활성화:**
+    - `X-Frame-Options: SAMEORIGIN` (타 사이트 iframe 삽입을 통한 클릭재킹 차단)
+    - `X-Content-Type-Options: nosniff` (MIME 스니핑 공격 차단)
+    - `Referrer-Policy: strict-origin-when-cross-origin` (내부 경로 유출 방지)
+    - `Permissions-Policy: camera=(), microphone=(), geolocation=()` (불필요한 디바이스 권한 원천 비활성화)
+    - `Strict-Transport-Security: max-age=31536000; includeSubDomains` (HTTPS 보안 연결 강제)
+  - **3. 이메일 스팸 릴레이 악용 방지:**
+    - 비인가 외부 메일 주소로의 임의 전송을 방지하기 위해 오직 KIOST 공식 도메인(`@kiost.ac.kr`)만 수신 가능하도록 서버사이드 검증 강화
+  - **4. 입력 필드 글자 수 제한:**
+    - textarea 500자, 일반 텍스트 100자, 전화번호 25자, 호실 10자로 제한하여 DoS 및 레이아웃 파손 방지
+- **테스트 및 검증 방법:**
+  - **보안 헤더 검증:** 터미널에서 `curl -I https://kiost-tcenter.web.app` 또는 파이썬 스크립트로 `x-frame-options`, `x-content-type-options`, `permissions-policy`가 정상 반환되는지 확인
+  - **XSS 테스트:** 성명 란에 `<script>alert(1)</script>` 또는 `<img src=x onerror=alert(1)>` 입력 시 스크립트 실행 없이 안전하게 텍스트 그대로 표시되는지 확인
 ---

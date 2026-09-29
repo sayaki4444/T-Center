@@ -19,14 +19,27 @@ function doPost(e) {
     var raw = e.postData.contents;
     var data = JSON.parse(raw);
 
+    // [보안 1] 페이로드 용량 제한 (최대 15MB Base64, DoS 방지)
+    if (!data.pdfBase64 || typeof data.pdfBase64 !== 'string' || data.pdfBase64.length > 15 * 1024 * 1024) {
+      throw new Error("유효하지 않거나 허용 용량을 초과한 파일 데이터입니다.");
+    }
+
+    // [보안 2] 이메일 헤더 인젝션 방지 및 수신자 도메인 검증 (외부 스팸 릴레이 악용 원천 차단)
+    var targetEmail = (data.adminEmail || "").trim().toLowerCase();
+    var ALLOWED_DOMAIN = "@kiost.ac.kr";
+    if (!targetEmail || !targetEmail.endsWith(ALLOWED_DOMAIN)) {
+      targetEmail = "yoonbs@kiost.ac.kr"; // 비인가 메일 유입 시 공식 담당자 메일로 강제 안전 격리
+    }
+
+    // [보안 3] 텍스트 헤더 정제 (CRLF 인젝션 방지)
+    var applicantName = (data.applicantName || "신청자").replace(/[\r\n]/g, " ").trim().substring(0, 50);
+    var docTitle = (data.docTitle || "공용숙소 신청서류").replace(/[\r\n]/g, " ").trim().substring(0, 100);
+    var fileName = (data.fileName || "document.pdf").replace(/[\r\n]/g, "_").trim().substring(0, 100);
+    var now = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
+
     // PDF Base64 디코딩
     var decodedPdf = Utilities.base64Decode(data.pdfBase64);
-    var pdfBlob = Utilities.newBlob(decodedPdf, 'application/pdf', data.fileName);
-
-    var targetEmail = data.adminEmail || "yoonbs@kiost.ac.kr";
-    var applicantName = data.applicantName || "신청자";
-    var docTitle = data.docTitle || "공용숙소 신청서류";
-    var now = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
+    var pdfBlob = Utilities.newBlob(decodedPdf, 'application/pdf', fileName);
 
     // 담당자에게 정식 이메일 발송
     MailApp.sendEmail({

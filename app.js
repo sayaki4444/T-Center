@@ -99,6 +99,26 @@ function formatRoomNumber(val, lang = 'ko') {
   return lang === 'ko' ? `${numOnly}호` : `Room ${numOnly}`;
 }
 
+// [보안] XSS 방지 HTML 엔티티 이스케이프
+function escapeHtml(val) {
+  if (val === null || val === undefined) return '';
+  return String(val)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function getSanitizedData(data) {
+  if (!data || typeof data !== 'object') return {};
+  const sanitized = {};
+  for (const key of Object.keys(data)) {
+    sanitized[key] = escapeHtml(data[key]);
+  }
+  return sanitized;
+}
+
 // 날짜 간 개월/일수 정밀 자동계산
 function calculateDuration(startDateStr, endDateStr, lang = 'ko') {
   if (!startDateStr || !endDateStr) return '';
@@ -462,6 +482,7 @@ function renderFormFields(docType) {
       inputEl.id = field.id;
       inputEl.name = field.id;
       inputEl.rows = 2;
+      inputEl.maxLength = 500;
       if (field.placeholder) inputEl.placeholder = field.placeholder;
       if (field.required) inputEl.required = true;
       if (currentFormData[field.id]) inputEl.value = currentFormData[field.id];
@@ -471,6 +492,13 @@ function renderFormFields(docType) {
       inputEl.className = 'form-control';
       inputEl.id = field.id;
       inputEl.name = field.id;
+      if (field.type === 'tel') {
+        inputEl.maxLength = 25;
+      } else if (field.isRoom) {
+        inputEl.maxLength = 10;
+      } else {
+        inputEl.maxLength = 100;
+      }
       if (field.placeholder) inputEl.placeholder = field.placeholder;
       if (field.required) inputEl.required = true;
       if (currentFormData[field.id]) inputEl.value = currentFormData[field.id];
@@ -635,7 +663,7 @@ function renderReviewPage() {
 
   // Table Generation
   const tableContainer = document.getElementById('review-table-container');
-  tableContainer.innerHTML = generateAuthenticTableHtml(selectedDocType, currentLang, currentFormData);
+  tableContainer.innerHTML = generateAuthenticTableHtml(selectedDocType, currentLang, getSanitizedData(currentFormData));
 
   // Subtext / Clauses / Attachments - STRICT ORDER
   const pledgeBox = document.getElementById('review-pledge-text');
@@ -683,7 +711,7 @@ function renderReviewPage() {
     : `Date: ${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}/${now.getFullYear()}<br><span style="font-size:0.75rem; font-weight:normal; color:#555;">(MM/DD/YY)</span>`;
 
   // Footer: Date(우측) + Signature(우측) + Recipient(국문: 좌측 하단 / 영문: 상단 배치 완료)
-  const applicantName = currentFormData['applicant_name'] || '-';
+  const applicantName = escapeHtml(currentFormData['applicant_name'] || '-');
   const footerEl = document.querySelector('.paper-footer');
   
   if (isKo) {
