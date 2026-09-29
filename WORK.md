@@ -458,3 +458,29 @@
   - **보안 헤더 검증:** 터미널에서 `curl -I https://kiost-tcenter.web.app` 또는 파이썬 스크립트로 `x-frame-options`, `x-content-type-options`, `permissions-policy`가 정상 반환되는지 확인
   - **XSS 테스트:** 성명 란에 `<script>alert(1)</script>` 또는 `<img src=x onerror=alert(1)>` 입력 시 스크립트 실행 없이 안전하게 텍스트 그대로 표시되는지 확인
 ---
+
+### [2026-09-29 16:32] 추가 보안 강화 (CSP 헤더 적용, 공용 PC 세션/메모리 자동 파기, 중복 제출 락 적용)
+
+- **작업 목적:** Content Security Policy(CSP) 적용을 통한 비인가 외부 스크립트 실행 차단, 연수동 공용 PC 환경을 위한 60초 자동 세션 종료 및 메모리 소멸 체계 구축, 네트워크 지연 시 중복 메일 발송(Double-Submit) 방지 락 적용
+- **수정/생성된 파일:**
+  - `firebase.json`: `Content-Security-Policy` 헤더 추가 (허용된 리소스 외 비인가 스크립트/외부 유출 차단)
+  - `index.html`: 제출 완료 화면(Step 4)에 공용 PC 개인정보 보호를 위한 60초 세션 파기 카운트다운 알림 배너 추가
+  - `app.js`: 
+    - 세션 및 메모리 완전 파기 함수(`resetAllSessionData`) 구현
+    - 60초 자동 카운트다운 타이머(`startAutoResetTimer`) 연동
+    - 브라우저 뒤로가기(`popstate`) 발생 시 민감 데이터 즉시 파기
+    - 최종 메일 발송 버튼 클릭 시 중복 전송 방지 락(`isSubmitting`) 적용
+- **주요 변경 사항:**
+  - **1. Content Security Policy(CSP) 헤더 추가:**
+    - `default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; frame-ancestors 'self';`
+  - **2. 공용 PC 환경 개인정보 메모리 완전 파기 및 자동 세션 종료:**
+    - 제출 완료 시 60초 카운트다운이 시작되며, 60초 경과 시 작성 정보와 서명 데이터가 메모리에서 완전히 소멸되고 초기 화면으로 자동 복귀
+    - '처음 화면으로' 버튼 클릭 및 브라우저 뒤로가기 시에도 `currentFormData`, 서명 캔버스, 폼 필드 입력값이 즉시 클리어되어 다음 사용자에게 노출되지 않음
+  - **3. 중복 제출 락(Double-Submit Protection):**
+    - 메일 발송 버튼 클릭 시 `isSubmitting` 플래그 및 버튼 클릭/포인터 차단(`pointer-events: none; opacity: 0.6;`)을 적용하여 다중 발송 및 서버 부하를 방어
+- **테스트 및 검증 방법:**
+  - `https://kiost-tcenter.web.app` 접속 후 서류 작성 및 제출 진행
+  - 제출 완료 단계 진입 시 60초 카운트다운 배너가 표시되는지 확인
+  - '처음 화면으로' 클릭 또는 60초 경과 후 재작성 화면 진입 시 이전 작성 데이터가 깔끔하게 초기화되어 있는지 확인
+  - 메일 발송 버튼 클릭 시 중복 클릭이 차단되는지 확인
+---

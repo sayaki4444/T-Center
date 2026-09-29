@@ -214,6 +214,10 @@
           <h2 data-i18n="complete_title">서류 제출이 완료되었습니다!</h2>
           <p data-i18n="complete_desc">작성하신 서류가 PDF로 변환되어 담당자에게 안전하게 전송되었습니다.</p>
           <div class="complete-details" id="complete-summary"></div>
+          <div class="security-reset-notice" id="security-reset-banner" style="margin: 14px 0; font-size: 0.85rem; color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span>🔒</span>
+            <span id="security-reset-text">공용 PC 개인정보 보호를 위해 <strong><span id="auto-reset-seconds">60</span>초</strong> 후 세션 및 입력 데이터가 자동 파기됩니다.</span>
+          </div>
           <div class="complete-actions">
             <button type="button" class="btn-outline" id="btn-download-submitted-pdf" data-i18n="btn_download_submitted_pdf">📄 작성한 PDF 다운로드</button>
             <button type="button" class="btn-primary" id="btn-go-home" data-i18n="btn_go_home">처음 화면으로</button>

@@ -46,7 +46,8 @@ const i18n = {
     complete_desc: "작성하신 서류가 PDF로 변환되어 담당자에게 안전하게 전송되었습니다.",
     btn_go_home: "처음 화면으로",
     footer_copy: "교육연수동 관리부서 © 2026. All rights reserved.",
-    applicant_name_label: "신청인(서명자):"
+    applicant_name_label: "신청인(서명자):",
+    security_reset_text: "공용 PC 개인정보 보호를 위해 <strong><span id=\"auto-reset-seconds\">60</span>초</strong> 후 세션 및 입력 데이터가 자동 파기됩니다."
   },
   en: {
     badge_title: "Training Center",
@@ -86,7 +87,8 @@ const i18n = {
     complete_desc: "Your official document has been converted to PDF and sent to the administrator.",
     btn_go_home: "Return to Home",
     footer_copy: "Training Center Residence Management Office © 2026. All rights reserved.",
-    applicant_name_label: "Applicant / Signer:"
+    applicant_name_label: "Applicant / Signer:",
+    security_reset_text: "For public PC privacy, session and form data will be purged in <strong><span id=\"auto-reset-seconds\">60</span>s</strong>."
   }
 };
 
@@ -393,6 +395,63 @@ function applyLanguage(lang) {
   const brand = document.getElementById('brand-main');
   if (badge) badge.textContent = dict.badge_title;
   if (brand) brand.textContent = dict.brand_main;
+
+  const resetText = document.getElementById('security-reset-text');
+  if (resetText && dict.security_reset_text) {
+    resetText.innerHTML = dict.security_reset_text;
+  }
+}
+
+let autoResetTimerId = null;
+let isSubmitting = false;
+
+function resetAllSessionData() {
+  if (autoResetTimerId) {
+    clearInterval(autoResetTimerId);
+    autoResetTimerId = null;
+  }
+  currentFormData = {};
+  clearSignature();
+
+  // Reset dynamic form inputs
+  const dynamicForm = document.getElementById('dynamic-form');
+  if (dynamicForm) {
+    dynamicForm.querySelectorAll('input, select, textarea').forEach(el => {
+      el.value = '';
+    });
+  }
+
+  // Clear preview & cached sensitive DOM
+  const paperElement = document.getElementById('printable-document');
+  if (paperElement) paperElement.innerHTML = '';
+
+  const summaryBox = document.getElementById('complete-summary');
+  if (summaryBox) summaryBox.innerHTML = '';
+
+  console.log('[Security] All sensitive personal data and signatures successfully wiped from memory.');
+}
+
+function startAutoResetTimer(durationSeconds = 60) {
+  if (autoResetTimerId) {
+    clearInterval(autoResetTimerId);
+    autoResetTimerId = null;
+  }
+  let remaining = durationSeconds;
+  const secSpan = document.getElementById('auto-reset-seconds');
+  if (secSpan) secSpan.textContent = remaining;
+
+  autoResetTimerId = setInterval(() => {
+    remaining--;
+    const currentSpan = document.getElementById('auto-reset-seconds');
+    if (currentSpan) currentSpan.textContent = remaining;
+    if (remaining <= 0) {
+      clearInterval(autoResetTimerId);
+      autoResetTimerId = null;
+      resetAllSessionData();
+      setStep(1);
+      alert(currentLang === 'ko' ? '🔒 공용 PC 개인정보 보호를 위해 작성된 데이터가 모두 안전하게 파기되었으며 첫 화면으로 이동했습니다.' : '🔒 Session and form data have been securely wiped for public PC privacy.');
+    }
+  }, 1000);
 }
 
 function setStep(stepNumber) {
@@ -411,7 +470,15 @@ function setStep(stepNumber) {
   if (stepNumber === 1) views.select.classList.add('active');
   if (stepNumber === 2) views.form.classList.add('active');
   if (stepNumber === 3) views.review.classList.add('active');
-  if (stepNumber === 4) views.complete.classList.add('active');
+  if (stepNumber === 4) {
+    views.complete.classList.add('active');
+    startAutoResetTimer(60);
+  } else {
+    if (autoResetTimerId) {
+      clearInterval(autoResetTimerId);
+      autoResetTimerId = null;
+    }
+  }
 
   // 즉시 최상단으로 강제 스크롤
   window.scrollTo(0, 0);
@@ -1267,11 +1334,15 @@ function initReviewEvents() {
   }
 
   document.getElementById('btn-final-submit').addEventListener('click', async () => {
-    const adminEmail = document.getElementById('admin-email-input').value.trim() || 'yoonbs@kiost.ac.kr';
+    if (isSubmitting) return; // [보안 4번] 중복 전송 락
+    isSubmitting = true;
 
+    const adminEmail = document.getElementById('admin-email-input').value.trim() || 'yoonbs@kiost.ac.kr';
     const btn = document.getElementById('btn-final-submit');
     const originalText = btn.textContent;
     btn.disabled = true;
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity = '0.6';
     btn.textContent = currentLang === 'ko' ? 'PDF 생성 및 메일 발송 중...' : 'Generating PDF & Dispatching...';
 
     try {
@@ -1284,15 +1355,25 @@ function initReviewEvents() {
       console.error(err);
       alert(currentLang === 'ko' ? '처리 중 오류가 발생했습니다: ' + err.message : 'Error occurred: ' + err.message);
     } finally {
+      isSubmitting = false;
       btn.disabled = false;
+      btn.style.pointerEvents = '';
+      btn.style.opacity = '';
       btn.textContent = originalText;
     }
   });
 
   document.getElementById('btn-go-home').addEventListener('click', () => {
-    currentFormData = {};
-    clearSignature();
+    // [보안 3번] 세션 및 서명 메모리 즉시 완전 파기
+    resetAllSessionData();
     setStep(1);
+  });
+
+  // [보안 3번] 브라우저 뒤로가기 발생 시 완료 단계 잔여 정보 보호
+  window.addEventListener('popstate', () => {
+    if (views.complete && views.complete.classList.contains('active')) {
+      resetAllSessionData();
+    }
   });
 }
 
