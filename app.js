@@ -449,7 +449,6 @@ function startAutoResetTimer(durationSeconds = 60) {
       autoResetTimerId = null;
       resetAllSessionData();
       setStep(1);
-      alert(currentLang === 'ko' ? '🔒 공용 PC 개인정보 보호를 위해 작성된 데이터가 모두 안전하게 파기되었으며 첫 화면으로 이동했습니다.' : '🔒 Session and form data have been securely wiped for public PC privacy.');
     }
   }, 1000);
 }
